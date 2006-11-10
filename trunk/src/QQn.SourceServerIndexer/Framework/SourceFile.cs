@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using QQn.SourceServerIndexer.Providers;
 
 namespace QQn.SourceServerIndexer.Framework
 {
@@ -16,6 +17,8 @@ namespace QQn.SourceServerIndexer.Framework
 	public class SourceFile : SourceFileBase, IComparable<SourceFile>, IEquatable<SourceFile>
 	{
 		readonly SortedList<string, SymbolFile> _symbolFiles = new SortedList<string, SymbolFile>(StringComparer.InvariantCultureIgnoreCase);
+		SourceReference _sourceReference;
+		bool _noSourceAvailable;
 
 		/// <summary>
 		/// Creates a new SourceFile object for the specified file
@@ -34,6 +37,32 @@ namespace QQn.SourceServerIndexer.Framework
 			get { return _symbolFiles; }
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		public SourceReference SourceReference
+		{
+			get { return _sourceReference; }
+			set { _sourceReference = value; }
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool IsResolved
+		{
+			get { return (SourceReference != null) || NoSourceAvailable; }
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public bool NoSourceAvailable
+		{
+			get { return _noSourceAvailable; }
+			set { _noSourceAvailable = value; }
+		}
+		
 		/// <summary>
 		/// 
 		/// </summary>

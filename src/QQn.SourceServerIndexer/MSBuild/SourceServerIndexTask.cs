@@ -12,7 +12,7 @@ using System.IO;
 using System.ComponentModel;
 using QQn.SourceServerIndexer.Framework;
 
-namespace QQn.SourceServerIndexer
+namespace QQn.SourceServerIndexer.MSBuild
 {
 	/// <summary>
 	/// MSBuild SourceServerIndex task implementation
@@ -22,10 +22,12 @@ namespace QQn.SourceServerIndexer
 		ITaskItem[] _symbolRoots = new ITaskItem[0];
 		ITaskItem[] _sourceRoots = new ITaskItem[0];
 		ITaskItem[] _symbolFiles = new ITaskItem[0];
+		ITaskItem[] _providers = new ITaskItem[0];
+		ITaskItem[] _types = new ITaskItem[0];
 		bool _includeHiddenDirectories;
 		bool _includeDotDirs;
 		bool _notRecursive;
-		string _sourceServerSdkDir;
+		string _sourceServerSdkDir;		
 
 		/// <summary>
 		/// Gets or sets a list of symbol root directories
@@ -74,6 +76,37 @@ namespace QQn.SourceServerIndexer
 		}
 
 		/// <summary>
+		/// Gets or sets a list of symbol files
+		/// </summary>
+		public ITaskItem[] Providers
+		{
+			get { return _providers; }
+			set
+			{
+				if (value == null)
+					_providers = new ITaskItem[0];
+				else
+					_providers = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets a list of provider types to search
+		/// </summary>
+		[Required]
+		public ITaskItem[] Type
+		{
+			get { return _types; }
+			set
+			{
+				if (value == null)
+					_types = new ITaskItem[0];
+				else
+					_types = value;
+			}
+		}
+
+		/// <summary>
 		/// Gets or sets a boolean indicating whether to index hidden directories (via <see cref="SymbolRoots"/>)
 		/// </summary>
 		[DefaultValue(false)]
@@ -118,8 +151,17 @@ namespace QQn.SourceServerIndexer
 		/// <returns>true if the indexing succeeded, othewise false</returns>
 		public override bool Execute()
 		{
+			List<string> providers = new List<string>();
+
+			foreach (ITaskItem item in Providers)
+			{
+				if (!string.IsNullOrEmpty(item.ItemSpec))
+					providers.Add(item.ItemSpec);
+			}
+
+
 			SortedList<string, string> symbolFiles = new SortedList<string, string>(StringComparer.InvariantCultureIgnoreCase);
-			SortedList<string, string> sourceRoots = new SortedList<string,string>(StringComparer.InvariantCultureIgnoreCase);
+			SortedList<string, string> sourceRoots = new SortedList<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
 			foreach (ITaskItem item in SymbolFiles)
 			{
@@ -136,13 +178,14 @@ namespace QQn.SourceServerIndexer
 			}
 
 			Dictionary<string, string> searchedPaths = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-			foreach(ITaskItem item in SymbolRoots)
+			foreach (ITaskItem item in SymbolRoots)
 			{
 				RecursiveSearchSymbols(new DirectoryInfo(item.ItemSpec), searchedPaths, symbolFiles);
 			}
 
 			SourceServerIndexer indexer = new SourceServerIndexer();
 
+			indexer.Providers = providers;
 			indexer.SymbolFiles = new List<string>(symbolFiles.Values);
 			indexer.SourceRoots = new List<string>(sourceRoots.Values);
 
@@ -154,7 +197,7 @@ namespace QQn.SourceServerIndexer
 			if (!result.Success)
 				return false;
 
-			Log.LogMessage(MessageImportance.High, "SourceServer-annotated {0} symbolfiles from {1} sourcefile references", result.IndexedSymbolFiles, result.IndexedSourceFiles);
+			Log.LogMessage(MessageImportance.High, "SourceServer-annotated {0} symbolfile(s) from {1} sourcefile reference(s) with {2} provider(s)", result.IndexedSymbolFiles, result.IndexedSourceFiles, result.ProvidersUsed);
 
 			return result.Success;
 		}
@@ -178,9 +221,9 @@ namespace QQn.SourceServerIndexer
 				if (!IncludeHiddenDirectories && ((subDir.Attributes & FileAttributes.Hidden) != 0))
 					continue;
 
-				if(!IncludeDotDirs && ("._".IndexOf(subDir.Name[0]) >= 0))
+				if (!IncludeDotDirs && ("._".IndexOf(subDir.Name[0]) >= 0))
 					continue;
-					
+
 				RecursiveSearchSymbols(subDir, searchedPaths, symbolFiles);
 			}
 		}

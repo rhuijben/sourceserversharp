@@ -9,6 +9,7 @@ using System.Text;
 using System.IO;
 using QQn.SourceServerIndexer.Framework;
 using System.Diagnostics;
+using QQn.SourceServerIndexer.Providers;
 
 namespace QQn.SourceServerIndexer
 {
@@ -20,6 +21,15 @@ namespace QQn.SourceServerIndexer
 		IList<string> _symbolFiles = new string[0];
 		IList<string> _sourceRoots = new string[0];
 		IList<string> _excludeSourceRoots = new string[0];
+
+		IList<string> _providerTypes = new string[]
+			{
+				typeof(SubversionProvider).FullName,
+				typeof(TeamFoundationProvider).FullName
+			};
+
+		IList<string> _srcTypes = new string[] { "autodetect" };
+
 		string _toolsPath;
 		string _sourceServerSdkDir = ".";
 		bool _reindexPreviouslyIndexed;
@@ -68,6 +78,38 @@ namespace QQn.SourceServerIndexer
 					_excludeSourceRoots = value;
 				else
 					_excludeSourceRoots = new string[0];
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets a list of sourcecode providers
+		/// </summary>
+		/// <remarks>These directories allow to exclude specific directories which are included in the <see cref="SourceRoots"/></remarks>
+		public IList<string> Providers
+		{
+			get { return _providerTypes; }
+			set
+			{
+				if (value != null)
+					_providerTypes = value;
+				else
+					_providerTypes = new string[0];
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets a list of sourcecode directories to index
+		/// </summary>
+		/// <remarks>If one or more sourceroots are specified, only files in and below these directories are indexed</remarks>
+		public IList<string> Types
+		{
+			get { return _srcTypes; }
+			set
+			{
+				if (value != null)
+					_srcTypes = value;
+				else
+					_srcTypes = new string[0];
 			}
 		}
 
@@ -133,18 +175,19 @@ namespace QQn.SourceServerIndexer
 				state.SymbolFiles.Add(symbolFile.FullName, symbolFile);
 			}
 
-			LoadFilesToIndex(state); // Check if there are files to index for this pdb file
+			ReadSourceFilesFromPdbs(state); // Check if there are files to index for this pdb file
 
-			
+			LoadProviders(state);
+			ResolveFiles(state);
 
-			return new IndexerResult(true, state.SymbolFiles.Count, state.SourceFiles.Count);
+			return new IndexerResult(true, state.SymbolFiles.Count, state.SourceFiles.Count, state.Providers.Count);
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="state"></param>
-		public void LoadFilesToIndex(IndexerState state)
+		void ReadSourceFilesFromPdbs(IndexerState state)
 		{
 			List<SymbolFile> pdbsToRemove = null;
 			foreach (SymbolFile pdb in state.SymbolFiles.Values)
@@ -206,6 +249,9 @@ namespace QQn.SourceServerIndexer
 				{
 					string fileName = item.Trim();
 
+					if (string.IsNullOrEmpty(fileName))
+						continue; // We split on \r and \n
+
 					if ((fileName.IndexOf('*') >= 0) || // C++ Compiler internal file
 						((fileName.Length > 2) && (fileName.IndexOf(':', 2) >= 0)))
 					{
@@ -215,20 +261,20 @@ namespace QQn.SourceServerIndexer
 						continue; // Skip never existing files
 					}
 
-					if (!string.IsNullOrEmpty(fileName))
+					fileName = state.NormalizePath(fileName);
+
+					SourceFile file;
+
+					if (!state.SourceFiles.TryGetValue(fileName, out file))
 					{
-						SourceFile file;
-
-						if (!state.SourceFiles.TryGetValue(fileName, out file))
-						{
-							file = new SourceFile(fileName);
-							state.SourceFiles.Add(fileName, file);
-						}
-
-						pdb.AddSourceFile(file);
-						file.AddContainer(pdb);
-						foundOne = true;
+						file = new SourceFile(fileName);
+						state.SourceFiles.Add(fileName, file);
 					}
+
+					pdb.AddSourceFile(file);
+					file.AddContainer(pdb);
+					foundOne = true;
+
 				}
 
 				if (!foundOne)
@@ -246,6 +292,77 @@ namespace QQn.SourceServerIndexer
 				{
 					state.SymbolFiles.Remove(s.FullName);
 				}
+			}
+		}
+
+		void LoadProviders(IndexerState state)
+		{
+			List<SourceProvider> providers = new List<SourceProvider>();
+			foreach(string provider in Providers)
+			{
+				Type providerType;
+				try
+				{
+					providerType = Type.GetType(provider, true, true);
+				}
+				catch(Exception e)
+				{
+					throw new SourceIndexException(string.Format("Can't load provider '{0}'", provider), e);
+				}
+
+				if (!typeof(SourceProvider).IsAssignableFrom(providerType) || providerType.IsAbstract)
+					throw new SourceIndexException(string.Format("Provider '{0}' is not a valid SourceProvider", providerType.FullName));
+
+				try
+				{
+					providers.Add((SourceProvider)Activator.CreateInstance(providerType, new object[] { state }));
+				}
+				catch (Exception e)
+				{
+					throw new SourceIndexException(string.Format("Can't initialize provider '{0}'", providerType.FullName), e);
+				}
+			}
+
+			bool autodetect = false;
+
+			foreach (string type in Types)
+			{
+				if (string.Equals(type, "AUTODETECT", StringComparison.InvariantCultureIgnoreCase))
+				{
+					autodetect = true;
+					continue;
+				}
+
+				foreach (SourceProvider sp in providers)
+				{
+					if (string.Equals(type, sp.Name, StringComparison.InvariantCultureIgnoreCase))
+					{
+						if (!state.Providers.Contains(sp) && sp.Available)
+							state.Providers.Add(sp);
+					}
+				}
+			}
+
+			if (autodetect)
+			{
+				foreach (SourceProvider sp in providers)
+				{
+					ISourceProviderDetector detector = sp as ISourceProviderDetector;
+
+					if ((detector != null) && !state.Providers.Contains(sp))
+					{
+						if (sp.Available && detector.CanProvideSources(state))
+							state.Providers.Add(sp);
+					}
+				}
+			}
+		}
+
+		void ResolveFiles(IndexerState state)
+		{
+			foreach (SourceProvider sp in state.Providers)
+			{
+				sp.ResolveFiles();
 			}
 		}
 	}

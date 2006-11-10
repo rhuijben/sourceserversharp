@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using QQn.SourceServerIndexer.Framework;
+using QQn.SourceServerIndexer.Providers;
+using System.IO;
 
 namespace QQn.SourceServerIndexer.Framework
 {
@@ -17,6 +19,7 @@ namespace QQn.SourceServerIndexer.Framework
 	{
 		readonly SortedList<string, SymbolFile> _symbolFiles = new SortedList<string,SymbolFile>(StringComparer.InvariantCultureIgnoreCase);
 		readonly SortedList<string, SourceFile> _sourceFiles = new SortedList<string, SourceFile>(StringComparer.InvariantCultureIgnoreCase);
+		readonly List<SourceProvider> _providers = new List<SourceProvider>();
 
 		/// <summary>
 		/// 
@@ -39,6 +42,32 @@ namespace QQn.SourceServerIndexer.Framework
 		public SortedList<string, SourceFile> SourceFiles
 		{
 			get { return _sourceFiles; }
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public List<SourceProvider> Providers
+		{
+			get { return _providers; }
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		public string NormalizePath(string path)
+		{
+			if (path == null)
+				throw new ArgumentNullException("path");
+
+			path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+			if (!Path.IsPathRooted(path))
+				path = Path.GetFullPath(path);
+
+			return path;
 		}
 	}
 }

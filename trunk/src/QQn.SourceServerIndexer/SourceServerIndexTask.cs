@@ -1,6 +1,6 @@
 // **************************************************************************
-// * $Id: ABPublish.cs 2581 2006-04-03 15:10:46Z berth $
-// * $HeadURL: https://subversion.competence.biz/svn/netdev/Projects/Tcg/TcgTools/trunk/src/BuildTools/TcgNantTasks/AutoBuild/ABPublish.cs $
+// * $Id$
+// * $HeadURL$
 // **************************************************************************
 
 using System;
@@ -10,6 +10,7 @@ using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using System.IO;
 using System.ComponentModel;
+using QQn.SourceServerIndexer.Framework;
 
 namespace QQn.SourceServerIndexer
 {
@@ -24,6 +25,7 @@ namespace QQn.SourceServerIndexer
 		bool _includeHiddenDirectories;
 		bool _includeDotDirs;
 		bool _notRecursive;
+		string _sourceServerSdkDir;
 
 		/// <summary>
 		/// Gets or sets a list of symbol root directories
@@ -102,6 +104,15 @@ namespace QQn.SourceServerIndexer
 		}
 
 		/// <summary>
+		/// Gets or sets the SourceServer SDK directory
+		/// </summary>
+		public string SourceServerSdkDir
+		{
+			get { return _sourceServerSdkDir; }
+			set { _sourceServerSdkDir = value; }
+		}
+
+		/// <summary>
 		/// Executes the indexing task
 		/// </summary>
 		/// <returns>true if the indexing succeeded, othewise false</returns>
@@ -135,7 +146,17 @@ namespace QQn.SourceServerIndexer
 			indexer.SymbolFiles = new List<string>(symbolFiles.Values);
 			indexer.SourceRoots = new List<string>(sourceRoots.Values);
 
-			return indexer.Exec();
+			if (!string.IsNullOrEmpty(SourceServerSdkDir))
+				indexer.SourceServerSdkDir = SourceServerSdkDir;
+
+			IndexerResult result = indexer.Exec();
+
+			if (!result.Success)
+				return false;
+
+			Log.LogMessage(MessageImportance.High, "SourceServer-annotated {0} symbolfiles from {1} sourcefile references", result.IndexedSymbolFiles, result.IndexedSourceFiles);
+
+			return result.Success;
 		}
 
 		void RecursiveSearchSymbols(DirectoryInfo dir, Dictionary<string, string> searchedPaths, SortedList<string, string> symbolFiles)

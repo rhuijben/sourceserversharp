@@ -1,19 +1,34 @@
+// **************************************************************************
+// * $Id: ABPublish.cs 2581 2006-04-03 15:10:46Z berth $
+// * $HeadURL: https://subversion.competence.biz/svn/netdev/Projects/Tcg/TcgTools/trunk/src/BuildTools/TcgNantTasks/AutoBuild/ABPublish.cs $
+// **************************************************************************
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using System.IO;
+using System.ComponentModel;
 
 namespace QQn.SourceServerIndexer
 {
+	/// <summary>
+	/// MSBuild SourceServerIndex task implementation
+	/// </summary>
 	public class SourceServerIndexTask : Task
 	{
 		ITaskItem[] _symbolRoots = new ITaskItem[0];
 		ITaskItem[] _sourceRoots = new ITaskItem[0];
 		ITaskItem[] _symbolFiles = new ITaskItem[0];
 		bool _includeHiddenDirectories;
+		bool _includeDotDirs;
+		bool _notRecursive;
 
+		/// <summary>
+		/// Gets or sets a list of symbol root directories
+		/// </summary>
+		/// <remarks>.pdf files in these directories are added to the <see cref="SymbolFiles"/></remarks>
 		public ITaskItem[] SymbolRoots
 		{
 			get { return _symbolRoots; }
@@ -26,6 +41,9 @@ namespace QQn.SourceServerIndexer
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a list of source root directories
+		/// </summary>
 		public ITaskItem[] SourceRoots
 		{
 			get { return _sourceRoots; }
@@ -38,6 +56,9 @@ namespace QQn.SourceServerIndexer
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a list of symbol files
+		/// </summary>
 		public ITaskItem[] SymbolFiles
 		{
 			get { return _symbolFiles; }
@@ -50,12 +71,40 @@ namespace QQn.SourceServerIndexer
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a boolean indicating whether to index hidden directories (via <see cref="SymbolRoots"/>)
+		/// </summary>
+		[DefaultValue(false)]
 		public bool IncludeHiddenDirectories
 		{
 			get { return _includeHiddenDirectories; }
 			set { _includeHiddenDirectories = value; }
 		}
 
+		/// <summary>
+		/// Gets or sets a boolean indicating whether to index directories starting with a dot or underscore (via <see cref="SymbolRoots"/>)
+		/// </summary>
+		[DefaultValue(false)]
+		public bool IncludeDotDirs
+		{
+			get { return _includeDotDirs; }
+			set { _includeDotDirs = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets a boolean indicating whether to recursively search for pdb files (via <see cref="SymbolRoots"/>)
+		/// </summary>
+		[DefaultValue(false)]
+		public bool NotRecursive
+		{
+			get { return _notRecursive; }
+			set { _notRecursive = value; }
+		}
+
+		/// <summary>
+		/// Executes the indexing task
+		/// </summary>
+		/// <returns>true if the indexing succeeded, othewise false</returns>
 		public override bool Execute()
 		{
 			SortedList<string, string> symbolFiles = new SortedList<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -105,10 +154,13 @@ namespace QQn.SourceServerIndexer
 
 			foreach (DirectoryInfo subDir in dir.GetDirectories())
 			{
-				if (IncludeHiddenDirectories || ((subDir.Attributes & FileAttributes.Hidden) != 0))
-				{
-					RecursiveSearchSymbols(subDir, searchedPaths, symbolFiles);
-				}
+				if (!IncludeHiddenDirectories && ((subDir.Attributes & FileAttributes.Hidden) != 0))
+					continue;
+
+				if(!IncludeDotDirs && ("._".IndexOf(subDir.Name[0]) >= 0))
+					continue;
+					
+				RecursiveSearchSymbols(subDir, searchedPaths, symbolFiles);
 			}
 		}
 	}

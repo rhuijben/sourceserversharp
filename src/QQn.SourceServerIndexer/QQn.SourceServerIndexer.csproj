@@ -39,16 +39,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Framework\IndexerResult.cs" />
+    <Compile Include="Framework\SourceFileBase.cs" />
+    <Compile Include="Framework\SourceIndexException.cs" />
+    <Compile Include="Framework\SourceIndexToolException.cs" />
+    <Compile Include="Framework\IndexerState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Framework\SourceFile.cs" />
+    <Compile Include="Providers\SubversionProvider.cs" />
     <Compile Include="SourceServerIndexer.cs" />
-    <Compile Include="SourceProvider.cs" />
+    <Compile Include="Providers\SourceProvider.cs" />
     <Compile Include="SourceServerIndexTask.cs" />
+    <Compile Include="Framework\SymbolFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="QQn.SourceServerIndexer.snk" />
+    <None Include="SourceServerIndexer.targets" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestIndexer.msbuild" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

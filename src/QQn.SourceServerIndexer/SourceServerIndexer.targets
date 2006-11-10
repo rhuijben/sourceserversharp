@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<!-- Reference the assembly containing our tasks -->
+	<UsingTask
+      TaskName="QQn.SourceServerIndexer.SourceServerIndexTask"
+      AssemblyFile="$(QQnSourceServerIndexerPath)QQn.SourceServerIndexer.dll" />
+
+  <PropertyGroup>
+    <SourceServerSdkDir Condition="'$(SourceServerSdkDir)'==''">c:\Program Files\Debugging Tools for Windows\sdk\srcsrv</SourceServerSdkDir>
+  </PropertyGroup>
+
+  <Target Name="AnnotateDebugSymbols">
+    <Message Text="Annotating Symbol files" />
+    <SourceServerIndexTask
+        SymbolRoots="$(SourceServerSymbolDirs)"
+        SourceRoots="$(SourceServerSourceDirs)"
+        SymbolFiles="$(SourceServerSymbolFiles)"
+        IncludeHiddenDirectories="$(SourceServerIncludeHiddenDirectories)"
+        IncludeDotDirs="$(SourceServerIncludeDotDirectories)"
+        NotRecursive="$(SourceServerRecursiveSearchDirectories)"
+        SourceServerSdkDir="$(SourceServerSdkDir)"
+        />
+	</Target>
+</Project>

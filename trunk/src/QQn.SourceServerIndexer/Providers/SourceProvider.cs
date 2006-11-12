@@ -13,49 +13,31 @@ namespace QQn.SourceServerIndexer.Providers
 	/// <summary>
 	/// 
 	/// </summary>
-	public interface ISourceProviderDetector
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="state"></param>
-		/// <returns></returns>
-		bool CanProvideSources(IndexerState state);
-	}
-	
-	/// <summary>
-	/// Base class of sourceproviders
-	/// </summary>
 	public abstract class SourceProvider
 	{
 		readonly IndexerState _state;
+		readonly string _id;
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="state"></param>
-		protected SourceProvider(IndexerState state)
+		/// <param name="name"></param>
+		protected SourceProvider(IndexerState state, string name)
 		{
-			if(state == null)
+			if (state == null)
 				throw new ArgumentNullException("state");
 
 			_state = state;
+			_id = state.AssignId(this, name);
 		}
 
 		/// <summary>
-		/// 
+		/// Gets the <see cref="SourceProvider"/> id; used for creating references
 		/// </summary>
-		public abstract string Name
+		public string Id
 		{
-			get;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		public abstract bool Available
-		{
-			get;
+			get { return _id; }
 		}
 
 		/// <summary>
@@ -65,11 +47,5 @@ namespace QQn.SourceServerIndexer.Providers
 		{
 			get { return _state; }
 		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		public abstract bool ResolveFiles();
 	}
 }

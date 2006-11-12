@@ -9,8 +9,8 @@
     <SourceServerSdkDir Condition="'$(SourceServerSdkDir)'==''">c:\Program Files\Debugging Tools for Windows\sdk\srcsrv</SourceServerSdkDir>
     <SourceServerProviders>
       $(SourceServerProviders);
-      QQn.SourceServerIndexer.Providers.SubversionProvider, QQn.SourceServerIndexer;
-      QQn.SourceServerIndexer.Providers.TeamFoundationProvider, QQn.SourceServerIndexer;
+      QQn.SourceServerIndexer.Providers.SubversionResolver, QQn.SourceServerIndexer;
+      QQn.SourceServerIndexer.Providers.TeamFoundationResolver, QQn.SourceServerIndexer;
     </SourceServerProviders>
     <SourceServerType Condition="'SourceServerType)'==''">AUTODETECT</SourceServerType>
   </PropertyGroup>

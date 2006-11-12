@@ -18,24 +18,16 @@ namespace QQn.SourceServerIndexer.Providers
 	/// <summary>
 	/// Implements the <see cref="SourceProvider"/> class for subversion (http://subversion.tigris.org/)
 	/// </summary>
-	public class SubversionProvider : SourceProvider, ISourceProviderDetector
+	public class SubversionResolver : SourceResolver, ISourceProviderDetector
 	{
 		string _svnExePath;
 		/// <summary>
 		/// 
 		/// </summary>
-		public SubversionProvider(IndexerState state)
-			: base(state)
+		public SubversionResolver(IndexerState state)
+			: base(state, "Subversion")
 		{
 			//GC.KeepAlive(null);
-		}
-
-		/// <summary>
-		/// Returns "Subversion"
-		/// </summary>
-		public override string Name
-		{
-			get { return "Subversion"; }
 		}
 
 		#region ### Availability
@@ -137,11 +129,11 @@ namespace QQn.SourceServerIndexer.Providers
 			CommandLineBuilder cb = new CommandLineBuilder();
 
 			cb.AppendSwitch("--non-interactive");
-			cb.AppendSwitch("--verbose");
-			cb.AppendSwitch("--non-recursive");
+			//cb.AppendSwitch("--verbose");
+			//cb.AppendSwitch("--non-recursive");
 			cb.AppendSwitch("--xml");
 
-			cb.AppendSwitch("status");
+			cb.AppendSwitch("info");
 
 			foreach (SourceFile file in State.SourceFiles.Values)
 			{
@@ -155,34 +147,83 @@ namespace QQn.SourceServerIndexer.Providers
 
 			using (Process p = Process.Start(psi))
 			{
-				string output = p.StandardOutput.ReadToEnd();
+				XPathDocument doc = new XPathDocument(p.StandardOutput);
 
-				if (output.Length > 0)
+				XPathNavigator nav = doc.CreateNavigator();
+
+				foreach (XPathNavigator i in nav.Select("/info/entry[@path and url and repository/root and commit/@revision]"))
 				{
-					XPathDocument doc = new XPathDocument(new StringReader(output));
+					SourceFile file;
 
-					XPathNavigator nav = doc.CreateNavigator();
+					string path = State.NormalizePath(i.GetAttribute("path", ""));
 
-					foreach (XPathNavigator i in nav.Select("/status/target/entry[@path and wc-status]"))
-					{
-						SourceFile file;
+					if (!State.SourceFiles.TryGetValue(path, out file))
+						continue;
 
-						string path = State.NormalizePath(i.GetAttribute("path", ""));
+					if (file.IsResolved)
+						continue; // No need to resolve it again
 
-						if(!State.SourceFiles.TryGetValue(path, out file))
-							continue;
+					XPathNavigator urlNav = i.SelectSingleNode("url");
+					XPathNavigator repositoryRootNav = i.SelectSingleNode("repository/root");
+					XPathNavigator commit = i.SelectSingleNode("commit");
 
-						XPathNavigator wcStatus = i.SelectSingleNode("wc-status");
-						XPathNavigator commit = (wcStatus != null) ? wcStatus.SelectSingleNode("commit") : null;
+					if (urlNav == null || repositoryRootNav == null || commit == null)
+						continue; // Not enough information to provide reference
 
-						GC.KeepAlive(commit);
-					}					
-				}				
+					string itemPath = urlNav.Value;
+					string reposRoot = repositoryRootNav.Value;
+
+					if (!itemPath.StartsWith(reposRoot, StringComparison.InvariantCultureIgnoreCase))
+						continue;
+					else
+						itemPath = itemPath.Substring(reposRoot.Length);
+
+					string commitRev = commit.GetAttribute("revision", "");
+					string wcRev = i.GetAttribute("revision", "");
+										
+					file.SourceReference = new SubversionSourceReference(this, file, new Uri(reposRoot), new Uri(itemPath, UriKind.Relative), int.Parse(commitRev), int.Parse(wcRev));
+				}
+				
 
 				p.WaitForExit();
 			}
 			
 			return true;
+		}
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public class SubversionSourceReference : SourceReference
+	{
+		readonly Uri _reposRoot;
+		readonly Uri _itemPath;
+		readonly int _commitRev;
+		readonly int _wcRev;
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="resolver"></param>
+		/// <param name="sourceFile"></param>
+		/// <param name="reposRoot"></param>
+		/// <param name="itemPath"></param>
+		/// <param name="commitRev"></param>
+		/// <param name="wcRev"></param>
+		public SubversionSourceReference(SubversionResolver resolver, SourceFile sourceFile, Uri reposRoot, Uri itemPath, int commitRev, int wcRev)
+			: base(resolver, sourceFile)
+		{
+			if (reposRoot == null)
+				throw new ArgumentNullException("reposRoot");
+			else if (itemPath == null)
+				throw new ArgumentNullException("itemPath");
+
+			_reposRoot = reposRoot;
+			_itemPath = itemPath;
+
+			_commitRev = commitRev;
+			_wcRev = wcRev;
 		}
 	}
 }

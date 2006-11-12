@@ -3,7 +3,7 @@
   <PropertyGroup>
 		<SourceServerIndexerTaskTestMode>true</SourceServerIndexerTaskTestMode>
 		<SourceServerSymbolDirs>bin</SourceServerSymbolDirs>
-    <QQnSourceServerIndexerPath>bin\release\</QQnSourceServerIndexerPath>
+    <QQnSourceServerIndexerPath Condition="'$(QQnSourceServerIndexerPath)' == ''">bin\release\</QQnSourceServerIndexerPath>
   </PropertyGroup>
 			
 	<Import Project="SourceServerIndexer.targets" />

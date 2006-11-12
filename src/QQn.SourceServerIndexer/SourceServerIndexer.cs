@@ -24,8 +24,8 @@ namespace QQn.SourceServerIndexer
 
 		IList<string> _providerTypes = new string[]
 			{
-				typeof(SubversionProvider).FullName,
-				typeof(TeamFoundationProvider).FullName
+				typeof(SubversionResolver).FullName,
+				typeof(TeamFoundationResolver).FullName
 			};
 
 		IList<string> _srcTypes = new string[] { "autodetect" };
@@ -180,7 +180,7 @@ namespace QQn.SourceServerIndexer
 			LoadProviders(state);
 			ResolveFiles(state);
 
-			return new IndexerResult(true, state.SymbolFiles.Count, state.SourceFiles.Count, state.Providers.Count);
+			return new IndexerResult(true, state.SymbolFiles.Count, state.SourceFiles.Count, state.Resolvers.Count);
 		}
 
 		/// <summary>
@@ -297,7 +297,7 @@ namespace QQn.SourceServerIndexer
 
 		void LoadProviders(IndexerState state)
 		{
-			List<SourceProvider> providers = new List<SourceProvider>();
+			List<SourceResolver> providers = new List<SourceResolver>();
 			foreach(string provider in Providers)
 			{
 				Type providerType;
@@ -310,12 +310,12 @@ namespace QQn.SourceServerIndexer
 					throw new SourceIndexException(string.Format("Can't load provider '{0}'", provider), e);
 				}
 
-				if (!typeof(SourceProvider).IsAssignableFrom(providerType) || providerType.IsAbstract)
+				if (!typeof(SourceResolver).IsAssignableFrom(providerType) || providerType.IsAbstract)
 					throw new SourceIndexException(string.Format("Provider '{0}' is not a valid SourceProvider", providerType.FullName));
 
 				try
 				{
-					providers.Add((SourceProvider)Activator.CreateInstance(providerType, new object[] { state }));
+					providers.Add((SourceResolver)Activator.CreateInstance(providerType, new object[] { state }));
 				}
 				catch (Exception e)
 				{
@@ -333,26 +333,26 @@ namespace QQn.SourceServerIndexer
 					continue;
 				}
 
-				foreach (SourceProvider sp in providers)
+				foreach (SourceResolver sp in providers)
 				{
 					if (string.Equals(type, sp.Name, StringComparison.InvariantCultureIgnoreCase))
 					{
-						if (!state.Providers.Contains(sp) && sp.Available)
-							state.Providers.Add(sp);
+						if (!state.Resolvers.Contains(sp) && sp.Available)
+							state.Resolvers.Add(sp);
 					}
 				}
 			}
 
 			if (autodetect)
 			{
-				foreach (SourceProvider sp in providers)
+				foreach (SourceResolver sp in providers)
 				{
 					ISourceProviderDetector detector = sp as ISourceProviderDetector;
 
-					if ((detector != null) && !state.Providers.Contains(sp))
+					if ((detector != null) && !state.Resolvers.Contains(sp))
 					{
 						if (sp.Available && detector.CanProvideSources(state))
-							state.Providers.Add(sp);
+							state.Resolvers.Add(sp);
 					}
 				}
 			}
@@ -360,7 +360,7 @@ namespace QQn.SourceServerIndexer
 
 		void ResolveFiles(IndexerState state)
 		{
-			foreach (SourceProvider sp in state.Providers)
+			foreach (SourceResolver sp in state.Resolvers)
 			{
 				sp.ResolveFiles();
 			}

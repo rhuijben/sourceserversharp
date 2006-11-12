@@ -13,23 +13,15 @@ namespace QQn.SourceServerIndexer.Providers
 	/// <summary>
 	/// 
 	/// </summary>
-	public class TeamFoundationProvider : SourceProvider
+	public class TeamFoundationResolver : SourceResolver
 	{
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="state"></param>
-		public TeamFoundationProvider(IndexerState state)
-			: base(state)
+		public TeamFoundationResolver(IndexerState state)
+			: base(state, "TF")
 		{
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		public override string Name
-		{
-			get { return "TF"; }
 		}
 
 		/// <summary>
@@ -40,6 +32,10 @@ namespace QQn.SourceServerIndexer.Providers
 			get { return false; }
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public override bool ResolveFiles()
 		{
 			throw new Exception("The method or operation is not implemented.");

@@ -167,7 +167,7 @@ namespace QQn.SourceServerIndexer.Providers
 				XPathDocument doc = new XPathDocument(new StringReader(_svnOutput.ToString()));
 				XPathNavigator nav = doc.CreateNavigator();
 
-				foreach(XPathNavigator i in nav.Select("/status/target[QQnErrorMarker]"))
+				foreach (XPathNavigator i in nav.Select("/status/target[@path and (QQnErrorMarker or entry/wc-status/@item='unversioned')]"))
 				{
 					string path = State.NormalizePath(i.GetAttribute("path", ""));
 

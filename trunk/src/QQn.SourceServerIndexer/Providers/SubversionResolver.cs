@@ -201,11 +201,21 @@ namespace QQn.SourceServerIndexer.Providers
 		public override void WriteEnvironment(StreamWriter writer)
 		{
 			writer.Write(Id);
-			writer.WriteLine(@"__TRG=%targ%\%fnbksl%(%var4%)\%var5%\%fnfile%(%var4%)");
+			writer.WriteLine(@"__TRG=%targ%\%var6%%fnbksl%(%var4%)\%var5%\%fnfile%(%var4%)");
 			writer.Write(Id);
-			writer.Write("__CMD=svn.exe export \"%var3%%var4%@%var5%\" \"%");
+			writer.Write("__CMD=cmd /c svn.exe cat \"%var3%%var4%@%var5%\" --non-interactive > \"%");
+			//writer.Write("__CMD=svn.exe export \"%var3%%var4%@%var5%\" \"%");
 			writer.Write(Id);
-			writer.WriteLine("__TRG%\" --non-interactive --quiet");
+			writer.WriteLine("__TRG%\"");
+			//writer.WriteLine("__TRG%\" --non-interactive --quiet");
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public override int SourceEntryVariableCount
+		{
+			get { return 4; }
 		}
 	}
 
@@ -243,6 +253,36 @@ namespace QQn.SourceServerIndexer.Providers
 			_wcRev = wcRev;
 		}
 
+		static string ReposSubDir(Uri reposUri)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append("svn-");
+			sb.Append(reposUri.Scheme);
+			sb.Append("\\");
+			if(!string.IsNullOrEmpty(reposUri.Host))
+			{
+				foreach(char c in reposUri.Host)
+					if(char.IsLetterOrDigit(c) || (".-".IndexOf(c) >= 0))
+						sb.Append(c);
+					else
+						sb.Append('_');
+
+				if(reposUri.Port >= 1)
+					sb.AppendFormat("_{0}", reposUri.Port);
+			}
+
+			if(!string.IsNullOrEmpty(reposUri.AbsolutePath))
+			{
+				sb.Append(reposUri.AbsolutePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar));
+			}
+			
+			if(sb[sb.Length-1] != Path.DirectorySeparatorChar)
+				sb.Append(Path.DirectorySeparatorChar);
+
+			return sb.ToString();
+		}
+
 		/// <summary>
 		/// Gets a list of entries for the sourcefiles
 		/// </summary>
@@ -253,7 +293,8 @@ namespace QQn.SourceServerIndexer.Providers
 			{
 				_reposRoot.ToString(),
 				_itemPath.ToString(),
-				_commitRev.ToString()
+				_commitRev.ToString(),
+				ReposSubDir(_reposRoot)
 			};
 		}
 	}

@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
 		<SourceServerIndexerTaskTestMode>true</SourceServerIndexerTaskTestMode>
-		<SourceServerSymbolDirs>bin</SourceServerSymbolDirs>
+		<SourceServerSymbolDirs>..</SourceServerSymbolDirs>
     <QQnSourceServerIndexerPath Condition="'$(QQnSourceServerIndexerPath)' == ''">bin\release\</QQnSourceServerIndexerPath>
   </PropertyGroup>
 			

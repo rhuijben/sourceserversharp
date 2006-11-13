@@ -147,46 +147,57 @@ namespace QQn.SourceServerIndexer.Providers
 
 			using (Process p = Process.Start(psi))
 			{
-				XPathDocument doc = new XPathDocument(new StringReader(p.StandardOutput.ReadToEnd()));
+				string output = p.StandardOutput.ReadToEnd().TrimEnd();
+
+				if (!output.EndsWith("</info>"))
+					output += "</info>";
+
+				XPathDocument doc = new XPathDocument(new StringReader(output));
 
 				XPathNavigator nav = doc.CreateNavigator();
 
-				foreach (XPathNavigator i in nav.Select("/info/entry[@path and url and repository/root and commit/@revision]"))
+				try
 				{
-					SourceFile file;
+					foreach (XPathNavigator i in nav.Select("/info/entry[@path and url and repository/root and commit/@revision]"))
+					{
+						SourceFile file;
 
-					string path = State.NormalizePath(i.GetAttribute("path", ""));
+						string path = State.NormalizePath(i.GetAttribute("path", ""));
 
-					if (!State.SourceFiles.TryGetValue(path, out file))
-						continue;
+						if (!State.SourceFiles.TryGetValue(path, out file))
+							continue;
 
-					if (file.IsResolved)
-						continue; // No need to resolve it again
+						if (file.IsResolved)
+							continue; // No need to resolve it again
 
-					XPathNavigator urlNav = i.SelectSingleNode("url");
-					XPathNavigator repositoryRootNav = i.SelectSingleNode("repository/root");
-					XPathNavigator commit = i.SelectSingleNode("commit");
+						XPathNavigator urlNav = i.SelectSingleNode("url");
+						XPathNavigator repositoryRootNav = i.SelectSingleNode("repository/root");
+						XPathNavigator commit = i.SelectSingleNode("commit");
 
-					if (urlNav == null || repositoryRootNav == null || commit == null)
-						continue; // Not enough information to provide reference
+						if (urlNav == null || repositoryRootNav == null || commit == null)
+							continue; // Not enough information to provide reference
 
-					string itemPath = urlNav.Value;
-					string reposRoot = repositoryRootNav.Value;
+						string itemPath = urlNav.Value;
+						string reposRoot = repositoryRootNav.Value;
 
-					if (!reposRoot.EndsWith("/"))
-						reposRoot += '/';
+						if (!reposRoot.EndsWith("/"))
+							reposRoot += '/';
 
-					if (!itemPath.StartsWith(reposRoot, StringComparison.InvariantCultureIgnoreCase))
-						continue;
-					else
-						itemPath = itemPath.Substring(reposRoot.Length);
+						if (!itemPath.StartsWith(reposRoot, StringComparison.InvariantCultureIgnoreCase))
+							continue;
+						else
+							itemPath = itemPath.Substring(reposRoot.Length);
 
-					string commitRev = commit.GetAttribute("revision", "");
-					string wcRev = i.GetAttribute("revision", "");
-										
-					file.SourceReference = new SubversionSourceReference(this, file, new Uri(reposRoot), new Uri(itemPath, UriKind.Relative), int.Parse(commitRev), int.Parse(wcRev));
+						string commitRev = commit.GetAttribute("revision", "");
+						string wcRev = i.GetAttribute("revision", "");
+
+						file.SourceReference = new SubversionSourceReference(this, file, new Uri(reposRoot), new Uri(itemPath, UriKind.Relative), int.Parse(commitRev), int.Parse(wcRev));
+					}
 				}
-				
+				catch (XmlException e)
+				{
+					throw new SourceIndexToolException("svn", "Received invalid xml from subversion", e);
+				}				
 
 				p.WaitForExit();
 			}

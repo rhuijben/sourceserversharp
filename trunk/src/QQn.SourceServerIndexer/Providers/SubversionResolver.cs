@@ -205,7 +205,7 @@ namespace QQn.SourceServerIndexer.Providers
 			writer.Write(Id);
 			writer.Write("__CMD=svn.exe export \"%var3%%var4%@%var5%\" \"%");
 			writer.Write(Id);
-			writer.WriteLine("__TRG%\" --force --non-interactive --non-recursive");
+			writer.WriteLine("__TRG%\" --non-interactive --quiet");
 		}
 	}
 

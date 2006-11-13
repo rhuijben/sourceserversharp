@@ -18,6 +18,7 @@ namespace QQn.SourceServerIndexer.Framework
 		readonly int _indexedSourceFiles;
 		readonly int _providersUsed;
 		readonly bool _successFull;
+		readonly string _errorMessage;
 
 		/// <summary>
 		/// 
@@ -26,12 +27,18 @@ namespace QQn.SourceServerIndexer.Framework
 		/// <param name="indexedSymbolFiles"></param>
 		/// <param name="indexedSourceFiles"></param>
 		/// <param name="providersUsed"></param>
-		public IndexerResult(bool success, int indexedSymbolFiles, int indexedSourceFiles, int providersUsed)
+		internal IndexerResult(bool success, int indexedSymbolFiles, int indexedSourceFiles, int providersUsed)
 		{
 			_successFull = success;
 			_indexedSymbolFiles = indexedSymbolFiles;
 			_indexedSourceFiles = indexedSourceFiles;
 			_providersUsed = providersUsed;
+		}
+
+		internal IndexerResult(bool success, string errorMessage)
+		{
+			_successFull = success;
+			_errorMessage = errorMessage;
 		}
 
 		/// <summary>
@@ -64,6 +71,11 @@ namespace QQn.SourceServerIndexer.Framework
 		public int ProvidersUsed
 		{
 			get { return _providersUsed; }
+		}
+
+		public string ErrorMessage
+		{
+			get { return _errorMessage; }
 		}
 	}
 }

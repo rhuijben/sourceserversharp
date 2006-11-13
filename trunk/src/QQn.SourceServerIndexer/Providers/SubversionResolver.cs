@@ -203,11 +203,10 @@ namespace QQn.SourceServerIndexer.Providers
 			writer.Write(Id);
 			writer.WriteLine(@"__TRG=%targ%\%var6%%fnbksl%(%var4%)\%var5%\%fnfile%(%var4%)");
 			writer.Write(Id);
-			writer.Write("__CMD=cmd /c svn.exe cat \"%var3%%var4%@%var5%\" --non-interactive > \"%");
-			//writer.Write("__CMD=svn.exe export \"%var3%%var4%@%var5%\" \"%");
+			writer.Write("__CMD=svn.exe export \"%var3%%var4%@%var5%\" \"%");
 			writer.Write(Id);
 			writer.WriteLine("__TRG%\"");
-			//writer.WriteLine("__TRG%\" --non-interactive --quiet");
+			writer.WriteLine("__TRG%\" --non-interactive --quiet");
 		}
 
 		/// <summary>

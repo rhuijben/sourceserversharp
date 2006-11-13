@@ -108,7 +108,7 @@ namespace QQn.SourceServerIndexer.Providers
 				if (Directory.Exists(Path.Combine(dir, ".svn")))
 					return true;
 				else if (Directory.Exists(Path.Combine(dir, "_svn")))
-					return true;
+					return true; // Might not work; requires environment variable
 			}
 
 			return false;
@@ -173,6 +173,9 @@ namespace QQn.SourceServerIndexer.Providers
 					string itemPath = urlNav.Value;
 					string reposRoot = repositoryRootNav.Value;
 
+					if (!reposRoot.EndsWith("/"))
+						reposRoot += '/';
+
 					if (!itemPath.StartsWith(reposRoot, StringComparison.InvariantCultureIgnoreCase))
 						continue;
 					else
@@ -189,6 +192,20 @@ namespace QQn.SourceServerIndexer.Providers
 			}
 			
 			return true;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="writer"></param>
+		public override void WriteEnvironment(StreamWriter writer)
+		{
+			writer.Write(Id);
+			writer.WriteLine(@"__TRG=%targ%\%fnbksl%(%var4%)\%var5%\%fnfile%(%var4%)");
+			writer.Write(Id);
+			writer.Write("__CMD=svn.exe export \"%var3%%var4%@%var5%\" \"%");
+			writer.Write(Id);
+			writer.WriteLine("__TRG%\" --force --non-interactive --non-recursive");
 		}
 	}
 
@@ -224,6 +241,20 @@ namespace QQn.SourceServerIndexer.Providers
 
 			_commitRev = commitRev;
 			_wcRev = wcRev;
+		}
+
+		/// <summary>
+		/// Gets a list of entries for the sourcefiles
+		/// </summary>
+		/// <returns></returns>
+		public override string[] GetSourceEntries()
+		{
+			return new string[]
+			{
+				_reposRoot.ToString(),
+				_itemPath.ToString(),
+				_commitRev.ToString()
+			};
 		}
 	}
 }

@@ -80,11 +80,11 @@ namespace QQn.SourceServerIndexer.Framework
 				if (!char.IsLetter(name, 0))
 					sb.Append("PRV");
 				else
-					sb.Append(name);
+					sb.Append(name[0]);
 
 				for (int i = 1; i < name.Length; i++)
 					if (char.IsLetterOrDigit(name, i))
-						sb.Append(name[i]);
+						sb.Append(char.ToUpperInvariant(name[i]));
 			}
 			else
 				return "PRV";

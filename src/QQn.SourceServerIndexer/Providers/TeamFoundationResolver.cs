@@ -40,5 +40,14 @@ namespace QQn.SourceServerIndexer.Providers
 		{
 			throw new Exception("The method or operation is not implemented.");
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="writer"></param>
+		public override void WriteEnvironment(System.IO.StreamWriter writer)
+		{
+			throw new Exception("The method or operation is not implemented.");
+		}
 	}
 }

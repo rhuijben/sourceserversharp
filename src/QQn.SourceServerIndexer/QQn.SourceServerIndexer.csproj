@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Engine\PdbReader.cs" />
+    <Compile Include="Engine\PdbWriter.cs" />
     <Compile Include="Framework\IndexerResult.cs" />
     <Compile Include="Framework\SourceFileBase.cs" />
     <Compile Include="Framework\SourceIndexException.cs" />

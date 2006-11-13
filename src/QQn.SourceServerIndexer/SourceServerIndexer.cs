@@ -178,12 +178,14 @@ namespace QQn.SourceServerIndexer
 
 			ReadSourceFilesFromPdbs(state); // Check if there are files to index for this pdb file
 
+			PerformExclusions(state);
+
 			LoadProviders(state);
 			ResolveFiles(state);
 
 			WritePdbAnnotations(state);
 
-			return new IndexerResult(true, state.SymbolFiles.Count, state.SourceFiles.Count, state.Resolvers.Count);
+			return CreateResultData(state);
 		}
 
 		/// <summary>
@@ -193,6 +195,91 @@ namespace QQn.SourceServerIndexer
 		void ReadSourceFilesFromPdbs(IndexerState state)
 		{
 			PdbReader.ReadSourceFilesFromPdbs(state, _srcToolPath, ReIndexPreviouslyIndexedSymbols);
+		}
+
+		void PerformExclusions(IndexerState state)
+		{
+			#region - Apply SourceRoots
+			if (SourceRoots.Count > 0)
+			{
+				List<string> rootList = new List<string>();
+
+				foreach (string root in SourceRoots)
+				{
+					string nRoot = state.NormalizePath(root);
+
+					if(!nRoot.EndsWith("\\"))
+						nRoot += "\\";
+
+					rootList.Add(nRoot);
+				}
+
+				string[] roots = rootList.ToArray();
+				Array.Sort<string>(roots, StringComparer.InvariantCultureIgnoreCase);
+
+				foreach (SourceFile sf in state.SourceFiles.Values)
+				{
+					string fileName = sf.FullName;
+
+					int n = Array.BinarySearch<string>(roots, fileName, StringComparer.InvariantCultureIgnoreCase);
+
+					if (n >= 0)
+						continue; // Exact match found
+
+					n = ~n;
+
+					if ((n > 0) && (n <= roots.Length))
+					{
+						if (fileName.StartsWith(roots[n - 1], StringComparison.InvariantCultureIgnoreCase))
+							continue; // Root found
+
+						sf.NoSourceAvailable = true;
+						continue;
+					}
+					else
+						sf.NoSourceAvailable = true;
+				}
+			}
+			#endregion - Apply SourceRoots
+			#region - Apply ExcludeSourceRoots
+			if (ExcludeSourceRoots.Count > 0)
+			{
+				List<string> rootList = new List<string>();
+
+				foreach (string root in ExcludeSourceRoots)
+				{
+					string nRoot = state.NormalizePath(root);
+
+					if (!nRoot.EndsWith(Path.DirectorySeparatorChar.ToString()))
+						nRoot += Path.DirectorySeparatorChar;
+
+					rootList.Add(nRoot);
+				}
+
+				string[] roots = rootList.ToArray();
+				Array.Sort<string>(roots, StringComparer.InvariantCultureIgnoreCase);
+
+				foreach (SourceFile sf in state.SourceFiles.Values)
+				{
+					string fileName = sf.FullName;
+
+					int n = Array.BinarySearch<string>(roots, fileName, StringComparer.InvariantCultureIgnoreCase);
+
+					if (n >= 0)
+						continue; // Exact match found
+
+					n = ~n;
+
+					if ((n > 0) && (n <= roots.Length))
+					{
+						if (fileName.StartsWith(roots[n - 1], StringComparison.InvariantCultureIgnoreCase))
+							sf.NoSourceAvailable = true;
+					}
+				}
+			}
+			#endregion
+
+
 		}
 
 		void LoadProviders(IndexerState state)
@@ -273,6 +360,19 @@ namespace QQn.SourceServerIndexer
 		void WritePdbAnnotations(IndexerState state)
 		{
 			PdbWriter.WritePdbAnnotations(state, _pdbStrPath);
+		}
+
+		IndexerResult CreateResultData(IndexerState state)
+		{
+			int nSources = 0;
+
+			foreach (SourceFile sf in state.SourceFiles.Values)
+			{
+				if (sf.SourceReference != null)
+					nSources++;
+			}
+
+			return new IndexerResult(true, state.SymbolFiles.Count, nSources, state.Resolvers.Count);
 		}
 	}
 }

@@ -14,7 +14,7 @@ namespace QQn.SourceServerIndexer.Framework
 	/// </summary>
 	public class SymbolFile : SourceFileBase, IComparable<SourceFile>, IEquatable<SourceFile>
 	{
-		readonly SortedList<string, SourceFile> _sourceFiles = new SortedList<string, SourceFile>(StringComparer.InvariantCultureIgnoreCase);
+		readonly List<SourceFile> _sourceFiles = new List<SourceFile>();
 
 		/// <summary>
 		/// 
@@ -28,7 +28,7 @@ namespace QQn.SourceServerIndexer.Framework
 		/// <summary>
 		/// 
 		/// </summary>
-		public IDictionary<string, SourceFile> SourceFiles
+		public IList<SourceFile> SourceFiles
 		{
 			get { return _sourceFiles; }
 		}
@@ -38,11 +38,9 @@ namespace QQn.SourceServerIndexer.Framework
 			if(sourceFile == null)
 				throw new ArgumentNullException("sourceFile");
 
-			if (!_sourceFiles.ContainsKey(sourceFile.FullName))
-				_sourceFiles.Add(sourceFile.FullName, sourceFile);
+			if (!_sourceFiles.Contains(sourceFile))
+				_sourceFiles.Add(sourceFile);
 		}
-
-
 			
 		#region ## IComparable<SourceFile>, IEquatable<SourceFile>
 

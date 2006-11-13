@@ -19,33 +19,33 @@ namespace QQn.SourceServerIndexer.Engine
 		{
 			foreach (SymbolFile file in state.SymbolFiles.Values)
 			{
-				bool found;
-				string tmpFile = file.FullName + ".srcsvr";
-				using (StreamWriter sw = File.CreateText(tmpFile))
+				string tmpFile = Path.GetFullPath(Path.GetTempFileName());
+				try
 				{
-					found = WriteAnnotations(state, file, sw);
-				}
+					using (StreamWriter sw = File.CreateText(tmpFile))
+					{
+						if (!WriteAnnotations(state, file, sw))
+							continue; // Temp file is deleted in finally
+					}
 
-				bool delete = false;
-				if (found)
-				{
 					ProcessStartInfo psi = new ProcessStartInfo(pdbStrPath);
 					psi.Arguments = string.Format("-w -s:srcsrv -p:\"{0}\" -i:\"{1}\"", file.FullName, tmpFile);
 					psi.UseShellExecute = false;
 
+					psi.RedirectStandardError = true;
+					psi.RedirectStandardOutput = true;
 					using (Process p = Process.Start(psi))
 					{
-						p.WaitForExit();
+						p.StandardOutput.ReadToEnd();
+						p.StandardError.ReadToEnd();
 
-						if (p.ExitCode == 0)
-							delete = true;
+						p.WaitForExit();
 					}
 				}
-				else
-					delete = true;
-
-				if (delete)
+				finally
+				{
 					File.Delete(tmpFile);
+				}
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace QQn.SourceServerIndexer.Engine
 			SortedList<string, SourceProvider> providers = new SortedList<string, SourceProvider>();
 			int itemCount = 1;
 
-			foreach (SourceFile sf in file.SourceFiles.Values)
+			foreach (SourceFile sf in file.SourceFiles)
 			{
 				if (!sf.IsResolved || sf.NoSourceAvailable)
 					continue;
@@ -97,7 +97,9 @@ namespace QQn.SourceServerIndexer.Engine
 			}
 			sw.WriteLine("SRCSRV: source files ---------------------------------------");
 
-			foreach (SourceFile sf in file.SourceFiles.Values)
+			// Note: the sourcefile block must be written in the order they are found by the PdbReader
+			//	otherwise SrcTool skips all sourcefiles which don't exist locally and are out of order
+			foreach (SourceFile sf in file.SourceFiles)
 			{
 				if (!sf.IsResolved || sf.NoSourceAvailable)
 					continue;
@@ -113,18 +115,22 @@ namespace QQn.SourceServerIndexer.Engine
 
 				string[] strings = sr.GetSourceEntries();
 
-				for (int i = 0; i < itemCount; i++)
-				{
-					if (strings != null && i < strings.Length)
-						sw.Write(strings[i]);
+				if (strings != null)
+					for (int i = 0; i < itemCount; i++)
+					{
+						if (i < strings.Length)
+							sw.Write(strings[i]);
 
-					sw.Write('*');
+						sw.Write('*');
+					}
+				else
+				{
+					for (int i = 0; i < itemCount; i++)
+						sw.Write('*');
 				}
 
-				// Note: We defined the variables upto itemCount+2 (filename, type, itemcount)
-				//
-
-				//
+				// Note: We defined the variables upto itemCount+2 (filename, type, itemcount),
+				// All variables above this index are reserved for future extensions
 
 				sw.WriteLine();
 			}

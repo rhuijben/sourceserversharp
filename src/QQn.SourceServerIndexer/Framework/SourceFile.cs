@@ -30,15 +30,15 @@ namespace QQn.SourceServerIndexer.Framework
 		}
 
 		/// <summary>
-		/// 
+		/// Gets tje list of symbolfiles containing a reference to this sourcefile
 		/// </summary>
-		public IDictionary<string,SymbolFile> Containers
+		public IList<SymbolFile> Containers
 		{
-			get { return _symbolFiles; }
+			get { return _symbolFiles.Values; }
 		}
 
 		/// <summary>
-		/// 
+		/// Gets or sets the <see cref="SourceReference"/> for this <see cref="SourceFile"/>
 		/// </summary>
 		public SourceReference SourceReference
 		{
@@ -47,16 +47,19 @@ namespace QQn.SourceServerIndexer.Framework
 		}
 
 		/// <summary>
-		/// 
+		/// Gets a value indicating whether a source-reference has been found
 		/// </summary>
+		/// <value><c>true</c> when a <see cref="SourceReference"/> is available or when <see cref="NoSourceAvailable"/> is set, otherwise <c>false</c></value>
 		public bool IsResolved
 		{
 			get { return (SourceReference != null) || NoSourceAvailable; }
 		}
 
 		/// <summary>
-		/// 
+		/// Gets or sets a boolean indicating no source is available
 		/// </summary>
+		/// <remarks>SourceProviders should set this property to true for files other <see cref="SourceProvider"/>s don't 
+		/// need to look for, but don't have a <see cref="SourceReference"/></remarks>
 		public bool NoSourceAvailable
 		{
 			get { return _noSourceAvailable; }

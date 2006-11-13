@@ -65,7 +65,7 @@ namespace QQn.SourceServerIndexer.Framework
 
 			path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
-			if (!Path.IsPathRooted(path))
+			if (!Path.IsPathRooted(path) || path.Contains(".."))
 				path = Path.GetFullPath(path);
 
 			return path;

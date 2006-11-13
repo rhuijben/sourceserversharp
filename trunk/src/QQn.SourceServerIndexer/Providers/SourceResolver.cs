@@ -44,7 +44,7 @@ namespace QQn.SourceServerIndexer.Providers
 		/// <summary>
 		/// 
 		/// </summary>
-		public string Name
+		public override string Name
 		{
 			get { return _name; }
 		}
@@ -62,5 +62,16 @@ namespace QQn.SourceServerIndexer.Providers
 		/// </summary>
 		/// <returns></returns>
 		public abstract bool ResolveFiles();
+
+		/// <summary>
+		/// Gets the number of variables the provider needs to encode entries
+		/// </summary>
+		/// <value>The number of variable the provider requires for encoding the per-sourcefile data of the sourcelocation</value>
+		/// <remarks>This value must remain constant. The provider may use <c>%VAR3%</c> upto <c>%VARx%</c> where x = <see cref="SourceEntryVariableCount"/>+2; 
+		/// All variables above this number are reserved for the framework</remarks>
+		public override int SourceEntryVariableCount
+		{
+			get { return 3; }
+		}
 	}
 }

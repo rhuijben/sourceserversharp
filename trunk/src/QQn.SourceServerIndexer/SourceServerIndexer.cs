@@ -10,6 +10,7 @@ using System.IO;
 using QQn.SourceServerIndexer.Framework;
 using System.Diagnostics;
 using QQn.SourceServerIndexer.Providers;
+using QQn.SourceServerIndexer.Engine;
 
 namespace QQn.SourceServerIndexer
 {
@@ -180,6 +181,8 @@ namespace QQn.SourceServerIndexer
 			LoadProviders(state);
 			ResolveFiles(state);
 
+			WritePdbAnnotations(state);
+
 			return new IndexerResult(true, state.SymbolFiles.Count, state.SourceFiles.Count, state.Resolvers.Count);
 		}
 
@@ -189,110 +192,7 @@ namespace QQn.SourceServerIndexer
 		/// <param name="state"></param>
 		void ReadSourceFilesFromPdbs(IndexerState state)
 		{
-			List<SymbolFile> pdbsToRemove = null;
-			foreach (SymbolFile pdb in state.SymbolFiles.Values)
-			{
-				ProcessStartInfo psi = new ProcessStartInfo(_srcToolPath);
-
-				psi.WorkingDirectory = pdb.File.DirectoryName;
-
-				psi.UseShellExecute = false;
-				psi.RedirectStandardError = true;
-				psi.RedirectStandardOutput = true;
-
-				string output;
-				string errors;
-
-				if (!ReIndexPreviouslyIndexedSymbols)
-				{
-					psi.Arguments = string.Format("-c \"{0}\"", pdb.FullName);
-
-					using (Process p = Process.Start(psi))
-					{
-						output = p.StandardOutput.ReadToEnd();
-						errors = p.StandardError.ReadToEnd();
-
-						p.WaitForExit();
-					}
-
-					if (output.Contains("source files are indexed") ||
-						errors.Contains("source files are indexed") ||
-						output.Contains("source file is indexed") ||
-						errors.Contains("source file is indexed"))
-					{
-						// No need to change annotation; it is already indexed
-						if (pdbsToRemove == null)
-							pdbsToRemove = new List<SymbolFile>();
-
-						pdbsToRemove.Add(pdb);
-						continue;
-					}
-				}
-
-				psi.Arguments = string.Format("-r \"{0}\"", pdb.FullName);
-
-				using (Process p = Process.Start(psi))
-				{
-					output = p.StandardOutput.ReadToEnd();
-					errors = p.StandardError.ReadToEnd();
-
-					p.WaitForExit();
-				}
-
-				if (!string.IsNullOrEmpty(errors))
-				{
-					throw new SourceIndexToolException("SRCTOOL", errors.Trim());
-				}
-
-				bool foundOne = false;
-				foreach (string item in output.Split('\r', '\n'))
-				{
-					string fileName = item.Trim();
-
-					if (string.IsNullOrEmpty(fileName))
-						continue; // We split on \r and \n
-
-					if ((fileName.IndexOf('*') >= 0) || // C++ Compiler internal file
-						((fileName.Length > 2) && (fileName.IndexOf(':', 2) >= 0)))
-					{
-						// Some compiler internal filenames of C++ start with a * 
-						// and/or have a :123 suffix
-
-						continue; // Skip never existing files
-					}
-
-					fileName = state.NormalizePath(fileName);
-
-					SourceFile file;
-
-					if (!state.SourceFiles.TryGetValue(fileName, out file))
-					{
-						file = new SourceFile(fileName);
-						state.SourceFiles.Add(fileName, file);
-					}
-
-					pdb.AddSourceFile(file);
-					file.AddContainer(pdb);
-					foundOne = true;
-
-				}
-
-				if (!foundOne)
-				{
-					if (pdbsToRemove == null)
-						pdbsToRemove = new List<SymbolFile>();
-
-					pdbsToRemove.Add(pdb);
-				}
-			}
-
-			if (pdbsToRemove != null)
-			{
-				foreach (SymbolFile s in pdbsToRemove)
-				{
-					state.SymbolFiles.Remove(s.FullName);
-				}
-			}
+			PdbReader.ReadSourceFilesFromPdbs(state, _srcToolPath, ReIndexPreviouslyIndexedSymbols);
 		}
 
 		void LoadProviders(IndexerState state)
@@ -364,6 +264,15 @@ namespace QQn.SourceServerIndexer
 			{
 				sp.ResolveFiles();
 			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="state"></param>
+		void WritePdbAnnotations(IndexerState state)
+		{
+			PdbWriter.WritePdbAnnotations(state, _pdbStrPath);
 		}
 	}
 }

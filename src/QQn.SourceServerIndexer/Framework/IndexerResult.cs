@@ -73,6 +73,9 @@ namespace QQn.SourceServerIndexer.Framework
 			get { return _providersUsed; }
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public string ErrorMessage
 		{
 			get { return _errorMessage; }

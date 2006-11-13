@@ -126,21 +126,67 @@ namespace QQn.SourceServerIndexer.Providers
 			ProcessStartInfo psi = new ProcessStartInfo(SvnExePath);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardOutput = true;
+			psi.RedirectStandardError = true;
+			psi.RedirectStandardInput = true;
 			CommandLineBuilder cb = new CommandLineBuilder();
 
 			cb.AppendSwitch("--non-interactive");
-			//cb.AppendSwitch("--verbose");
-			//cb.AppendSwitch("--non-recursive");
+			cb.AppendSwitch("--verbose");
+			cb.AppendSwitch("--non-recursive");
 			cb.AppendSwitch("--xml");
 
-			cb.AppendSwitch("info");
+			cb.AppendSwitch("status");
+
+			SortedList<string, SourceFile> files = new SortedList<string, SourceFile>(StringComparer.InvariantCultureIgnoreCase);
 
 			foreach (SourceFile file in State.SourceFiles.Values)
 			{
 				if (file.IsResolved)
 					continue;
 
+				files.Add(file.FullName, file);
 				cb.AppendFileNameIfNotNull(file.FullName);				
+			}
+
+			psi.Arguments = cb.ToString();
+
+			using (Process p = Process.Start(psi))
+			{
+				p.EnableRaisingEvents = true;
+				p.ErrorDataReceived += new DataReceivedEventHandler(svn_ErrorDataReceived);
+				p.OutputDataReceived += new DataReceivedEventHandler(svn_OutputDataReceived);
+				p.StandardInput.Close();
+
+				_svnOutput = new StringBuilder();
+				_svnCloseItem = "</target>";
+				p.BeginOutputReadLine();
+				p.BeginErrorReadLine();
+
+				p.WaitForExit();
+
+				XPathDocument doc = new XPathDocument(new StringReader(_svnOutput.ToString()));
+				XPathNavigator nav = doc.CreateNavigator();
+
+				foreach(XPathNavigator i in nav.Select("/status/target[QQnErrorMarker]"))
+				{
+					string path = State.NormalizePath(i.GetAttribute("path", ""));
+
+					files.Remove(path);
+				}
+			}
+
+			_svnOutput = null; // Clear buffer
+
+			cb = new CommandLineBuilder();
+
+			cb.AppendSwitch("--non-interactive");
+			cb.AppendSwitch("--xml");
+
+			cb.AppendSwitch("info");
+
+			foreach (SourceFile file in files.Values)
+			{
+				cb.AppendFileNameIfNotNull(file.FullName);
 			}
 
 			psi.Arguments = cb.ToString();
@@ -203,6 +249,24 @@ namespace QQn.SourceServerIndexer.Providers
 			}
 			
 			return true;
+		}
+
+		StringBuilder _svnOutput;
+		string _svnCloseItem;
+		void svn_OutputDataReceived(object sender, DataReceivedEventArgs e)
+		{
+			if (e.Data == null)
+				return;
+			_svnOutput.Append(e.Data);
+			_svnOutput.Append(Environment.NewLine);
+		}
+
+		void svn_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+		{
+			if (e.Data == null)
+				return;
+			_svnOutput.Append("<QQnErrorMarker />");
+			_svnOutput.Append(_svnCloseItem);
 		}
 
 		/// <summary>

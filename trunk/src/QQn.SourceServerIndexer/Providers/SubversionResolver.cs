@@ -147,7 +147,7 @@ namespace QQn.SourceServerIndexer.Providers
 
 			using (Process p = Process.Start(psi))
 			{
-				XPathDocument doc = new XPathDocument(p.StandardOutput);
+				XPathDocument doc = new XPathDocument(new StringReader(p.StandardOutput.ReadToEnd()));
 
 				XPathNavigator nav = doc.CreateNavigator();
 

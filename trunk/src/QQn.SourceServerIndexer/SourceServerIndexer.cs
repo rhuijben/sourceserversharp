@@ -19,9 +19,9 @@ namespace QQn.SourceServerIndexer
 	/// </summary>
 	public class SourceServerIndexer
 	{
-		IList<string> _symbolFiles = new string[0];
-		IList<string> _sourceRoots = new string[0];
-		IList<string> _excludeSourceRoots = new string[0];
+		IList<string> _symbolFiles = new List<string>();
+		IList<string> _sourceRoots = new List<string>();
+		IList<string> _excludeSourceRoots = new List<string>();
 
 		IList<string> _providerTypes = new string[]
 			{

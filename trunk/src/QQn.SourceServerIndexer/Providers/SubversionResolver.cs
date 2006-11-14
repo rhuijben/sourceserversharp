@@ -375,8 +375,8 @@ namespace QQn.SourceServerIndexer.Providers
 			{
 				_reposRoot.ToString(),
 				_itemPath.ToString(),
-				_wcRev.ToString(),
-				_commitRev.ToString(),				
+				_commitRev.ToString(),
+				_wcRev.ToString(),				
 				ReposSubDir(_reposRoot)
 			};
 		}

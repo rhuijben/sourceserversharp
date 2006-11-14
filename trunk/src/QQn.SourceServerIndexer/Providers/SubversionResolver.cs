@@ -285,9 +285,9 @@ namespace QQn.SourceServerIndexer.Providers
 		public override void WriteEnvironment(StreamWriter writer)
 		{
 			writer.Write(Id);
-			writer.WriteLine(@"__TRG=%targ%\%var6%%fnbksl%(%var4%)\%var5%\%fnfile%(%var4%)");
+			writer.WriteLine(@"__TRG=%targ%\%var7%%fnbksl%(%var4%)\%var5%\%fnfile%(%var4%)");
 			writer.Write(Id);
-			writer.Write("__CMD=svn.exe export \"%var3%%var4%@%var5%\" \"%");
+			writer.Write("__CMD=svn.exe export \"%var3%%var4%@%var6%\" \"%");
 			writer.Write(Id);
 			writer.WriteLine("__TRG%\" --non-interactive --quiet");
 		}
@@ -297,7 +297,7 @@ namespace QQn.SourceServerIndexer.Providers
 		/// </summary>
 		public override int SourceEntryVariableCount
 		{
-			get { return 4; }
+			get { return 5; }
 		}
 	}
 
@@ -375,6 +375,7 @@ namespace QQn.SourceServerIndexer.Providers
 			{
 				_reposRoot.ToString(),
 				_itemPath.ToString(),
+				_commitRev.ToString(),
 				_wcRev.ToString(),				
 				ReposSubDir(_reposRoot)
 			};

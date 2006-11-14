@@ -218,13 +218,10 @@ namespace QQn.SourceServerIndexer.Providers
 
 			using (Process p = Process.Start(psi))
 			{
+				p.StandardInput.Close();
+
 				string output = p.StandardOutput.ReadToEnd().TrimEnd();
-
-				if (!output.EndsWith("</info>"))
-					output += "</info>";
-
 				XPathDocument doc = new XPathDocument(new StringReader(output));
-
 				XPathNavigator nav = doc.CreateNavigator();
 
 				try

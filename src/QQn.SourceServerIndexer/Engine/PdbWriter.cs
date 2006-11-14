@@ -90,7 +90,7 @@ namespace QQn.SourceServerIndexer.Engine
 			sw.WriteLine("DATETIME=" + DateTime.Now.ToUniversalTime().ToString("u"));
 			sw.WriteLine("SRCSRVTRG=%fnvar%(%VAR2%__TRG)");
 			sw.WriteLine("SRCSRVCMD=%fnvar%(%VAR2%__CMD)");
-			sw.WriteLine("SRCSRVENV=%fnvar%(%VAR2%__ENV)");
+			//sw.WriteLine("SRCSRVENV=PATH=%PATH%\\bSystemDrive=%SystemDrive%\\bSystemRoot=%SystemRoot%\\bProgramFiles=%ProgramFiles%\\bProgramData=%ProgramData%\\b%fnvar%(%VAR2%__ENV)");
 			foreach (SourceProvider sp in providers.Values)
 			{
 				sp.WriteEnvironment(sw);

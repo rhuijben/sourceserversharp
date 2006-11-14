@@ -184,7 +184,7 @@ namespace QQn.SourceServerIndexer.Providers
 						int nNext = output.IndexOf("<", i + 5);
 
 						if (0 == string.Compare(output, nNext, "<target", 0, 7) 
-							|| ((0 == string.Compare(output, nNext, "</", 0, 9)) && (0 != string.Compare(output, nNext+2, "target", 0, 6))))
+							|| ((0 == string.Compare(output, nNext, "</", 0, 2)) && (0 != string.Compare(output, nNext+2, "target", 0, 6))))
 						{
 							int nClose = output.IndexOf(">", i + 5);
 

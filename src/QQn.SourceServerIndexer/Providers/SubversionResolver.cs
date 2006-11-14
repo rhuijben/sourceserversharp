@@ -131,7 +131,7 @@ namespace QQn.SourceServerIndexer.Providers
 			CommandLineBuilder cb = new CommandLineBuilder();
 
 			cb.AppendSwitch("--non-interactive");
-			cb.AppendSwitch("--verbose");
+			//cb.AppendSwitch("--verbose");
 			cb.AppendSwitch("--non-recursive");
 			cb.AppendSwitch("--xml");
 
@@ -139,43 +139,70 @@ namespace QQn.SourceServerIndexer.Providers
 
 			SortedList<string, SourceFile> files = new SortedList<string, SourceFile>(StringComparer.InvariantCultureIgnoreCase);
 
-			foreach (SourceFile file in State.SourceFiles.Values)
+			SortedList<string, bool> volumes = new SortedList<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+
+			State.SourceFiles.Add("q:\\q", State.SourceFiles[State.SourceFiles.Keys[0]]);
+
+			foreach (KeyValuePair<string, SourceFile> file in State.SourceFiles)
 			{
-				if (file.IsResolved)
+				if (file.Value.IsResolved)
 					continue;
 
-				files.Add(file.FullName, file);
-				cb.AppendFileNameIfNotNull(file.FullName);				
+				// Check if the volume exists; if not 'svn status' returns "svn: Error resolving case of 'q:\q'"
+				string root = Path.GetPathRoot(file.Key);
+
+				bool rootExists;
+
+				if(!volumes.TryGetValue(root, out rootExists))
+				{
+					rootExists = Directory.Exists(root);
+					
+					volumes.Add(root, rootExists);
+				}
+				
+				if(!rootExists)
+					continue;
+
+				files.Add(file.Key, file.Value);
+				cb.AppendFileNameIfNotNull(file.Key);				
 			}
 
 			psi.Arguments = cb.ToString();
 
 			using (Process p = Process.Start(psi))
 			{
-				p.EnableRaisingEvents = true;
-				p.ErrorDataReceived += new DataReceivedEventHandler(svn_ErrorDataReceived);
-				p.OutputDataReceived += new DataReceivedEventHandler(svn_OutputDataReceived);
 				p.StandardInput.Close();
 
-				_svnOutput = new StringBuilder();
-				_svnCloseItem = "</target>";
-				p.BeginOutputReadLine();
-				p.BeginErrorReadLine();
+				string output = p.StandardOutput.ReadToEnd();
+				string errs = p.StandardError.ReadToEnd();
 
-				p.WaitForExit();
-
-				XPathDocument doc = new XPathDocument(new StringReader(_svnOutput.ToString()));
-				XPathNavigator nav = doc.CreateNavigator();
-
-				foreach (XPathNavigator i in nav.Select("/status/target[@path and (QQnErrorMarker or entry/wc-status/@item='unversioned')]"))
+				if (!string.IsNullOrEmpty(errs))
 				{
-					string path = State.NormalizePath(i.GetAttribute("path", ""));
+					XmlDocument doc = new XmlDocument();
+					int nStart = 0;
+					int i;
+					while (0 <= (i = output.IndexOf("<target", nStart)))
+					{
+						int nNext = output.IndexOf("<", i + 5);
 
-					files.Remove(path);
+						if (0 == string.Compare(output, nNext, "<target", 0, 7) 
+							|| ((0 == string.Compare(output, nNext, "</", 0, 9)) && (0 != string.Compare(output, nNext+2, "target", 0, 6))))
+						{
+							int nClose = output.IndexOf(">", i + 5);
+
+							if (nClose >= 0)
+							{
+								doc.LoadXml(output.Substring(i, nClose - i) + " />");
+
+								string path = State.NormalizePath(doc.DocumentElement.GetAttribute("path"));
+								files.Remove(path);
+							}								
+						}
+
+						nStart = nNext;
+					}
 				}
 			}
-
-			_svnOutput = null; // Clear buffer
 
 			cb = new CommandLineBuilder();
 
@@ -249,24 +276,6 @@ namespace QQn.SourceServerIndexer.Providers
 			}
 			
 			return true;
-		}
-
-		StringBuilder _svnOutput;
-		string _svnCloseItem;
-		void svn_OutputDataReceived(object sender, DataReceivedEventArgs e)
-		{
-			if (e.Data == null)
-				return;
-			_svnOutput.Append(e.Data);
-			_svnOutput.Append(Environment.NewLine);
-		}
-
-		void svn_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-		{
-			if (e.Data == null)
-				return;
-			_svnOutput.Append("<QQnErrorMarker />");
-			_svnOutput.Append(_svnCloseItem);
 		}
 
 		/// <summary>

@@ -141,8 +141,6 @@ namespace QQn.SourceServerIndexer.Providers
 
 			SortedList<string, bool> volumes = new SortedList<string, bool>(StringComparer.InvariantCultureIgnoreCase);
 
-			State.SourceFiles.Add("q:\\q", State.SourceFiles[State.SourceFiles.Keys[0]]);
-
 			foreach (KeyValuePair<string, SourceFile> file in State.SourceFiles)
 			{
 				if (file.Value.IsResolved)

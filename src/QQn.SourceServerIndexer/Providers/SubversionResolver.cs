@@ -117,6 +117,21 @@ namespace QQn.SourceServerIndexer.Providers
 		#endregion #### ISourceProviderDetector Members
 		#endregion ### Availability
 
+		static bool ContainsAt(string hayStack, int index, string needle)
+		{
+			if (hayStack == null)
+				throw new ArgumentNullException("hayStack");
+			else if (index < 0)
+				throw new ArgumentException("offset out of range", "index");
+			else if (string.IsNullOrEmpty(needle))
+				throw new ArgumentNullException("needle");
+
+			if (hayStack.Length < index + needle.Length)
+				return false;
+
+			return 0 == string.Compare(hayStack, index, needle, 0, needle.Length);
+		}
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -183,8 +198,8 @@ namespace QQn.SourceServerIndexer.Providers
 					{
 						int nNext = output.IndexOf("<", i + 5);
 
-						if (0 == string.Compare(output, nNext, "<target", 0, 7) 
-							|| ((0 == string.Compare(output, nNext, "</", 0, 2)) && (0 != string.Compare(output, nNext+2, "target", 0, 6))))
+						if (ContainsAt(output, nNext, "<target") 
+							|| (ContainsAt(output, nNext, "</") && !ContainsAt(output, nNext+2, "target")))
 						{
 							int nClose = output.IndexOf(">", i + 5);
 

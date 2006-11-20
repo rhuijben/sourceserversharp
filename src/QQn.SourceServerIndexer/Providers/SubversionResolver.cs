@@ -184,36 +184,44 @@ namespace QQn.SourceServerIndexer.Providers
 
 			using (Process p = Process.Start(psi))
 			{
-				p.StandardInput.Close();
-
-				string output = p.StandardOutput.ReadToEnd();
-				string errs = p.StandardError.ReadToEnd();
-
-				if (!string.IsNullOrEmpty(errs))
+				try
 				{
-					XmlDocument doc = new XmlDocument();
-					int nStart = 0;
-					int i;
-					while (0 <= (i = output.IndexOf("<target", nStart)))
+					p.StandardInput.Close();
+
+					string output = p.StandardOutput.ReadToEnd();
+					string errs = p.StandardError.ReadToEnd();
+
+					if (!string.IsNullOrEmpty(errs))
 					{
-						int nNext = output.IndexOf("<", i + 5);
-
-						if (ContainsAt(output, nNext, "<target") 
-							|| (ContainsAt(output, nNext, "</") && !ContainsAt(output, nNext+2, "target")))
+						XmlDocument doc = new XmlDocument();
+						int nStart = 0;
+						int i;
+						while (0 <= (i = output.IndexOf("<target", nStart)))
 						{
-							int nClose = output.IndexOf(">", i + 5);
+							int nNext = output.IndexOf("<", i + 5);
 
-							if (nClose >= 0)
+							if (nNext < 0 ||
+								ContainsAt(output, nNext, "<target") ||
+								(ContainsAt(output, nNext, "</") && !ContainsAt(output, nNext + 2, "target")))
 							{
-								doc.LoadXml(output.Substring(i, nClose - i) + " />");
+								int nClose = output.IndexOf(">", i + 5);
 
-								string path = State.NormalizePath(doc.DocumentElement.GetAttribute("path"));
-								files.Remove(path);
-							}								
+								if (nClose >= 0)
+								{
+									doc.LoadXml(output.Substring(i, nClose - i) + " />");
+
+									string path = State.NormalizePath(doc.DocumentElement.GetAttribute("path"));
+									files.Remove(path);
+								}
+							}
+
+							nStart = nNext;
 						}
-
-						nStart = nNext;
 					}
+				}
+				catch (Exception e)
+				{
+					throw new InvalidOperationException(string.Format("Error executing '{0}' with '{1}'", psi.FileName, psi.Arguments), e);
 				}
 			}
 

@@ -141,7 +141,7 @@ namespace QQn.SourceServerIndexer.Providers
 			ProcessStartInfo psi = new ProcessStartInfo(SvnExePath);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardOutput = true;
-			psi.RedirectStandardError = true;
+			//psi.RedirectStandardError = true;
 			psi.RedirectStandardInput = true;
 			CommandLineBuilder cb = new CommandLineBuilder();
 
@@ -189,7 +189,7 @@ namespace QQn.SourceServerIndexer.Providers
 					p.StandardInput.Close();
 
 					string output = p.StandardOutput.ReadToEnd();
-					string errs = p.StandardError.ReadToEnd();
+					//string errs = p.StandardError.ReadToEnd();
 
 					if (!string.IsNullOrEmpty(errs))
 					{

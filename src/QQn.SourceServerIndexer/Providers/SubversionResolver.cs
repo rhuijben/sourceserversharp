@@ -141,7 +141,7 @@ namespace QQn.SourceServerIndexer.Providers
 			ProcessStartInfo psi = new ProcessStartInfo(SvnExePath);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardOutput = true;
-			//psi.RedirectStandardError = true;
+			psi.RedirectStandardError = true;
 			psi.RedirectStandardInput = true;
 			CommandLineBuilder cb = new CommandLineBuilder();
 
@@ -187,11 +187,19 @@ namespace QQn.SourceServerIndexer.Providers
 				try
 				{
 					p.StandardInput.Close();
+					p.ErrorDataReceived += new DataReceivedEventHandler(svnStatus_ErrorDataReceived);
+					p.OutputDataReceived += new DataReceivedEventHandler(svnStatus_OutputDataReceived);
+					_svnStatusOutput = new StringBuilder();
+					_receivedError = false;
+					p.BeginErrorReadLine();
+					p.BeginOutputReadLine();
 
-					string output = p.StandardOutput.ReadToEnd();
+					p.WaitForExit();
+					string output = _svnStatusOutput.ToString();
+					_svnStatusOutput = null;
 					//string errs = p.StandardError.ReadToEnd();
 
-					if (!string.IsNullOrEmpty(errs))
+					if (_receivedError)
 					{
 						XmlDocument doc = new XmlDocument();
 						int nStart = 0;
@@ -244,6 +252,7 @@ namespace QQn.SourceServerIndexer.Providers
 			}
 
 			psi.Arguments = cb.ToString();
+			psi.RedirectStandardError = false;
 
 			using (Process p = Process.Start(psi))
 			{
@@ -305,6 +314,20 @@ namespace QQn.SourceServerIndexer.Providers
 			}
 			
 			return true;
+		}
+
+		StringBuilder _svnStatusOutput;
+		bool _receivedError;
+		void svnStatus_OutputDataReceived(object sender, DataReceivedEventArgs e)
+		{
+			if(e.Data != null)
+				_svnStatusOutput.Append(e.Data);
+		}
+
+		void svnStatus_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+		{
+			if (!string.IsNullOrEmpty(e.Data))
+				_receivedError = true;
 		}
 
 		/// <summary>

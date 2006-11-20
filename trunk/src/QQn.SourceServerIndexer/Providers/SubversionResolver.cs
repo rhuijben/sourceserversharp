@@ -215,9 +215,15 @@ namespace QQn.SourceServerIndexer.Providers
 								}
 							}
 
-							nStart = nNext;
+							if (nNext >= 0)
+								nStart = nNext;
+							else
+								break;
 						}
 					}
+
+					p.WaitForExit();
+
 				}
 				catch (Exception e)
 				{

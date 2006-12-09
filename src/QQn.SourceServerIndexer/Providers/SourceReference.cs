@@ -1,6 +1,6 @@
 // **************************************************************************
-// * $Id: SubversionProvider.cs 6 2006-11-10 14:57:35Z bhuijben $
-// * $HeadURL: https://sourceserversharp.googlecode.com/svn/trunk/src/QQn.SourceServerIndexer/Providers/SubversionProvider.cs $
+// * $Id$
+// * $HeadURL$
 // **************************************************************************
 
 using System;

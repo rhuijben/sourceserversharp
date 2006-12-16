@@ -23,15 +23,14 @@ namespace QQn.SourceServerIndexer
 		IList<string> _sourceRoots = new List<string>();
 		IList<string> _excludeSourceRoots = new List<string>();
 
-		IList<string> _providerTypes = new string[]
+		IList<string> _providerTypes = new List<string>(new string[]
 			{
 				typeof(SubversionResolver).FullName,
 				typeof(TeamFoundationResolver).FullName
-			};
+			});
 
-		IList<string> _srcTypes = new string[] { "autodetect" };
+		IList<string> _srcTypes = new List<string>(new string[] { "autodetect" });
 
-		string _toolsPath;
 		string _sourceServerSdkDir = ".";
 		bool _reindexPreviouslyIndexed;
 
@@ -83,9 +82,8 @@ namespace QQn.SourceServerIndexer
 		}
 
 		/// <summary>
-		/// Gets or sets a list of sourcecode providers
+		/// Gets or sets a list of sourcecode provider types
 		/// </summary>
-		/// <remarks>These directories allow to exclude specific directories which are included in the <see cref="SourceRoots"/></remarks>
 		public IList<string> Providers
 		{
 			get { return _providerTypes; }
@@ -112,15 +110,6 @@ namespace QQn.SourceServerIndexer
 				else
 					_srcTypes = new string[0];
 			}
-		}
-
-		/// <summary>
-		/// Gets or sets the directory containing the sourceserver tools
-		/// </summary>
-		public string ToolsPath
-		{
-			get { return _toolsPath; }
-			set { _toolsPath = value; }
 		}
 
 		/// <summary>

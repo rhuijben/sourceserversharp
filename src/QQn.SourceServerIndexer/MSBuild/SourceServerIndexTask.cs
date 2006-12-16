@@ -32,7 +32,7 @@ namespace QQn.SourceServerIndexer.MSBuild
 		/// <summary>
 		/// Gets or sets a list of symbol root directories
 		/// </summary>
-		/// <remarks>.pdf files in these directories are added to the <see cref="SymbolFiles"/></remarks>
+		/// <remarks>.pdb files in these directories are added to the <see cref="SymbolFiles"/></remarks>
 		public ITaskItem[] SymbolRoots
 		{
 			get { return _symbolRoots; }

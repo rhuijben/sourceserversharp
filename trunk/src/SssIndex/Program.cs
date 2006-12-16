@@ -5,6 +5,7 @@ using QQn.SourceServerIndexer;
 using QQn.SourceServerIndexer.Framework;
 using System.IO;
 using System.Reflection;
+using Microsoft.Win32;
 
 namespace SssIndex
 {
@@ -216,6 +217,30 @@ Please note:
 
 			if (Directory.Exists(sdkDir))
 				indexer.SourceServerSdkDir = Path.GetFullPath(sdkDir);
+			else
+			{
+				using (RegistryKey rk = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\DebuggingTools"))
+				{
+					if (rk != null)
+					{
+						string path = rk.GetValue("WinDbg") as string;
+
+						if (path != null)
+						{
+							path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).TrimEnd(Path.DirectorySeparatorChar);
+
+							if (Directory.Exists(path))
+							{
+								path = Path.Combine(path, "sdk\\srcsrv");
+
+								if (Directory.Exists(path))
+									indexer.SourceServerSdkDir = path;
+							}
+						}
+					}
+				}
+			}
+
 
 			string systemPath = System.Environment.GetEnvironmentVariable("PATH");
 			bool appendedToPath = false;

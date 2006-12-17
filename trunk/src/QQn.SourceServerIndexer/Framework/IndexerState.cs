@@ -21,6 +21,7 @@ namespace QQn.SourceServerSharp.Framework
 		readonly SortedList<string, SourceFile> _sourceFiles = new SortedList<string, SourceFile>(StringComparer.InvariantCultureIgnoreCase);
 		readonly SortedList<string, SourceProvider> _srcProviders = new SortedList<string, SourceProvider>(StringComparer.InvariantCultureIgnoreCase);
 		readonly List<SourceResolver> _resolvers = new List<SourceResolver>();
+		IDictionary<string, IndexerTypeData> _resolverData = new SortedList<string, IndexerTypeData>(StringComparer.InvariantCultureIgnoreCase);
 
 		/// <summary>
 		/// 
@@ -43,6 +44,22 @@ namespace QQn.SourceServerSharp.Framework
 		public SortedList<string, SourceFile> SourceFiles
 		{
 			get { return _sourceFiles; }
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public IDictionary<string, IndexerTypeData> ResolverData
+		{
+			get { return _resolverData; }
+			set 
+			{ 
+				if(value != null)
+					_resolverData = value; 
+				else
+					_resolverData = new SortedList<string, IndexerTypeData>(StringComparer.InvariantCultureIgnoreCase);
+			}
 		}
 
 		/// <summary>

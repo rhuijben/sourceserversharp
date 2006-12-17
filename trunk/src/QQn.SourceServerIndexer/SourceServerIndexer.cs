@@ -11,6 +11,7 @@ using QQn.SourceServerSharp.Framework;
 using System.Diagnostics;
 using QQn.SourceServerSharp.Providers;
 using QQn.SourceServerSharp.Engine;
+using Microsoft.Win32;
 
 namespace QQn.SourceServerSharp
 {
@@ -32,8 +33,36 @@ namespace QQn.SourceServerSharp
 		IList<string> _srcTypes = new List<string>(new string[] { "autodetect" });
 		IDictionary<string, IndexerTypeData> _indexerData = new SortedList<string, IndexerTypeData>(StringComparer.InvariantCultureIgnoreCase);
 
-		string _sourceServerSdkDir = ".";
+		string _sourceServerSdkDir = null;
+		string _registrySourceServerSdkDir = null;
 		bool _reindexPreviouslyIndexed;
+
+		/// <summary>
+		/// Initializes a new SourceServerIndexer
+		/// </summary>
+		public SourceServerIndexer()
+		{
+			using (RegistryKey rk = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\DebuggingTools", false))
+			{
+				if (rk != null)
+				{
+					string path = rk.GetValue("WinDbg") as string;
+
+					if (path != null)
+					{
+						path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).TrimEnd(Path.DirectorySeparatorChar);
+
+						if (Directory.Exists(path))
+						{
+							string srcSdkPath = Path.Combine(path, "sdk\\srcsrv");
+
+							if (Directory.Exists(path))
+								SourceServerSdkDir = _registrySourceServerSdkDir = Path.GetFullPath(srcSdkPath);
+						}
+					}
+				}
+			}
+		}
 
 		/// <summary>
 		/// Gets or sets a list of symbol files to index
@@ -113,7 +142,10 @@ namespace QQn.SourceServerSharp
 			}
 		}
 
-		public IDictionary<string, IndexerTypeData> IndexerData
+		/// <summary>
+		/// Gets or sets a dictionary containing source information per path
+		/// </summary>
+		public IDictionary<string, IndexerTypeData> ResolverData
 		{
 			get { return _indexerData; }
 			set
@@ -136,7 +168,7 @@ namespace QQn.SourceServerSharp
 				if (value != null)
 					_sourceServerSdkDir = value;
 				else
-					value = ".";
+					value = null;
 			}
 		}
 
@@ -158,13 +190,62 @@ namespace QQn.SourceServerSharp
 		/// <returns></returns>
 		public IndexerResult Exec()
 		{
-			_srcToolPath = Path.GetFullPath(Path.Combine(SourceServerSdkDir, "srctool.exe"));
-			_pdbStrPath = Path.GetFullPath(Path.Combine(SourceServerSdkDir, "pdbstr.exe"));
+			string sdkDir = SourceServerSdkDir;
 
-			if (!File.Exists(_srcToolPath))
-				throw new FileNotFoundException("SRCTOOL.EXE not found", _srcToolPath);
-			else if (!File.Exists(_pdbStrPath))
-				throw new FileNotFoundException("PDBSTR.EXE not found", _pdbStrPath);
+			if(string.IsNullOrEmpty(sdkDir))
+			{
+				Uri codeBase = new Uri(typeof(SourceServerIndexer).Assembly.CodeBase);
+
+				if(codeBase.IsFile)
+					sdkDir = Path.GetDirectoryName(codeBase.LocalPath);
+			}
+
+			if(string.IsNullOrEmpty(_srcToolPath) || !File.Exists(_srcToolPath))
+			{
+				string path;
+
+				if(!string.IsNullOrEmpty(sdkDir) && Directory.Exists(sdkDir))
+				{
+					if(File.Exists(path = Path.Combine(sdkDir, "srctool.exe")))
+						_srcToolPath = Path.GetFullPath(path);
+				}
+
+				if (string.IsNullOrEmpty(_srcToolPath) && !string.IsNullOrEmpty(_registrySourceServerSdkDir) && Directory.Exists(_registrySourceServerSdkDir))
+				{
+					if (File.Exists(path = Path.Combine(_registrySourceServerSdkDir, "srctool.exe")))
+						_srcToolPath = Path.GetFullPath(path);
+				}
+
+				if(string.IsNullOrEmpty(_srcToolPath))
+					_srcToolPath = SssUtils.FindExecutable("srctool.exe");
+
+				if(string.IsNullOrEmpty(_srcToolPath))
+					throw new FileNotFoundException("SRCTOOL.EXE not found", "srctool.exe");
+			}
+
+			if(string.IsNullOrEmpty(_pdbStrPath) || !File.Exists(_pdbStrPath))
+			{
+				string path;
+
+				if(!string.IsNullOrEmpty(sdkDir) && Directory.Exists(sdkDir))
+				{
+					if(File.Exists(path = Path.Combine(sdkDir, "pdbstr.exe")))
+						_pdbStrPath = Path.GetFullPath(path);
+				}
+
+				if (!string.IsNullOrEmpty(_registrySourceServerSdkDir) && Directory.Exists(_registrySourceServerSdkDir))
+				{
+					if (File.Exists(path = Path.Combine(_registrySourceServerSdkDir, "pdbstr.exe")))
+						_pdbStrPath = Path.GetFullPath(path);
+				}
+
+				if(string.IsNullOrEmpty(_pdbStrPath))
+					_pdbStrPath = SssUtils.FindExecutable("pdbstr.exe");
+
+				if(string.IsNullOrEmpty(_srcToolPath))
+					throw new FileNotFoundException("PDBSTR.EXE not found", "pdbstr.exe");
+			}
+
 
 			IndexerState state = new IndexerState();
 
@@ -181,6 +262,8 @@ namespace QQn.SourceServerSharp
 			ReadSourceFilesFromPdbs(state); // Check if there are files to index for this pdb file
 
 			PerformExclusions(state);
+
+			state.ResolverData = this.ResolverData;
 
 			LoadProviders(state);
 			ResolveFiles(state);

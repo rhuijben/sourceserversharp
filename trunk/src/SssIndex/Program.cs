@@ -23,8 +23,13 @@ namespace SssIndex
 
 			if (!quiet)
 			{
-				Console.WriteLine(((AssemblyProductAttribute)typeof(Program).Assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false)[0]).Product);
+				Console.Write(((AssemblyProductAttribute)typeof(Program).Assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false)[0]).Product);
+
+				AssemblyName name = new AssemblyName(typeof(Program).Assembly.FullName);
+				Console.WriteLine(" " + name.Version.ToString(4));
 				Console.WriteLine(((AssemblyCopyrightAttribute)typeof(Program).Assembly.GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false)[0]).Copyright);
+				Console.WriteLine("The sourcecode of this program has been released under the BSD licence.");
+				Console.WriteLine();
 			}
 
 			if (indexer == null)
@@ -44,7 +49,6 @@ namespace SssIndex
 			{
 				if (!quiet)
 				{
-					Console.WriteLine();
 					Console.WriteLine("Added {0} references to {1} symbolfile(s) with {2} provider(s).", result.IndexedSourceFiles, result.IndexedSymbolFiles, result.ProvidersUsed);
 				}
 
@@ -191,7 +195,7 @@ Please note:
 					break;
 			}
 
-			if (i >= args.Length - 1)
+			if (i >= args.Length)
 				return null; // Show help
 
 			for (; i < args.Length; i++)
@@ -227,30 +231,6 @@ Please note:
 
 			if (Directory.Exists(sdkDir))
 				indexer.SourceServerSdkDir = Path.GetFullPath(sdkDir);
-			else
-			{
-				using (RegistryKey rk = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\DebuggingTools"))
-				{
-					if (rk != null)
-					{
-						string path = rk.GetValue("WinDbg") as string;
-
-						if (path != null)
-						{
-							path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).TrimEnd(Path.DirectorySeparatorChar);
-
-							if (Directory.Exists(path))
-							{
-								path = Path.Combine(path, "sdk\\srcsrv");
-
-								if (Directory.Exists(path))
-									indexer.SourceServerSdkDir = path;
-							}
-						}
-					}
-				}
-			}
-
 
 			string systemPath = System.Environment.GetEnvironmentVariable("PATH");
 			bool appendedToPath = false;

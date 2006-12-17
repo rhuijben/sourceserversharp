@@ -76,7 +76,7 @@ namespace QQn.SourceServerSharp.Tasks
 						indexer.SourceRoots.Add(dir);
 
 						if(hasData)
-							indexer.IndexerData[dir] = new IndexerTypeData(dir, set.Type, set.Info);
+							indexer.ResolverData[dir] = new IndexerTypeData(dir, set.Type, set.Info);
 					}
 				}
 
@@ -90,7 +90,7 @@ namespace QQn.SourceServerSharp.Tasks
 						indexer.SourceRoots.Add(file);
 
 						if (hasData)
-							indexer.IndexerData[file] = new IndexerTypeData(file, set.Type, set.Info);
+							indexer.ResolverData[file] = new IndexerTypeData(file, set.Type, set.Info);
 					}
 				}
 

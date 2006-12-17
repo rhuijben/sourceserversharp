@@ -6,11 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using QQn.SourceServerIndexer.Framework;
-using QQn.SourceServerIndexer.Providers;
+using QQn.SourceServerSharp.Framework;
+using QQn.SourceServerSharp.Providers;
 using System.IO;
 
-namespace QQn.SourceServerIndexer.Framework
+namespace QQn.SourceServerSharp.Framework
 {
 	/// <summary>
 	/// 

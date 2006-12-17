@@ -7,12 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using QQn.SourceServerIndexer.Framework;
+using QQn.SourceServerSharp.Framework;
 using System.Diagnostics;
-using QQn.SourceServerIndexer.Providers;
-using QQn.SourceServerIndexer.Engine;
+using QQn.SourceServerSharp.Providers;
+using QQn.SourceServerSharp.Engine;
 
-namespace QQn.SourceServerIndexer
+namespace QQn.SourceServerSharp
 {
 	/// <summary>
 	/// 
@@ -30,6 +30,7 @@ namespace QQn.SourceServerIndexer
 			});
 
 		IList<string> _srcTypes = new List<string>(new string[] { "autodetect" });
+		IDictionary<string, IndexerTypeData> _indexerData = new SortedList<string, IndexerTypeData>(StringComparer.InvariantCultureIgnoreCase);
 
 		string _sourceServerSdkDir = ".";
 		bool _reindexPreviouslyIndexed;
@@ -109,6 +110,18 @@ namespace QQn.SourceServerIndexer
 					_srcTypes = value;
 				else
 					_srcTypes = new string[0];
+			}
+		}
+
+		public IDictionary<string, IndexerTypeData> IndexerData
+		{
+			get { return _indexerData; }
+			set
+			{
+				if (value != null)
+					_indexerData = value;
+				else
+					_indexerData = new SortedList<string, IndexerTypeData>(StringComparer.InvariantCultureIgnoreCase);
 			}
 		}
 

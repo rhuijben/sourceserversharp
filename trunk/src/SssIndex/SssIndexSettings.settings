@@ -5,11 +5,11 @@
     <Setting Name="Resolvers" Type="System.Collections.Specialized.StringCollection" Scope="Application">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;string&gt;QQn.SourceServerIndexer.Providers.SubversionResolver, QQn.SourceServerIndexer&lt;/string&gt;
-  &lt;string&gt;QQn.SourceServerIndexer.Providers.TeamFoundationResolver, QQn.SourceServerIndexer&lt;/string&gt;
+  &lt;string&gt;QQn.SourceServerSharp.Providers.SubversionResolver, QQn.SourceServerSharp&lt;/string&gt;
+  &lt;string&gt;QQn.SourceServerSharp.Providers.TeamFoundationResolver, QQn.SourceServerSharp&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
-    <Setting Name="DebuggingSdkDir" Type="System.String" Scope="Application">
+    <Setting Name="SourceServerSdkDir" Type="System.String" Scope="Application">
       <Value Profile="(Default)">%programfiles%\Debugging Tools for Windows\sdk\srcsrv</Value>
     </Setting>
     <Setting Name="UseResolvers" Type="System.Collections.Specialized.StringCollection" Scope="Application">

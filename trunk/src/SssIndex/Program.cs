@@ -6,8 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using QQn.SourceServerIndexer;
-using QQn.SourceServerIndexer.Framework;
+using QQn.SourceServerSharp;
+using QQn.SourceServerSharp.Framework;
 using System.IO;
 using System.Reflection;
 using Microsoft.Win32;
@@ -61,6 +61,8 @@ SssIndex [<arguments>] file1.pdb [file2.pdb...]
   -q[uiet]             Shows no output if annotating the pdb was successfull
   -i[nclude] <path>    Includes only files within this path (can be used
                        multiple times). Directories and files can be used.
+  -f[orce]             Add annotation to previously annotated files
+                       (not recommended)
   -x, -exclude <path>  Don't include files in the specified path (can be used
                        multiple times). Directories and files can be used.
 
@@ -113,7 +115,10 @@ Please note:
 						case "quiet":
 							quiet = true;
 							break;
-
+						case "f":
+						case "force":
+							indexer.ReIndexPreviouslyIndexedSymbols = true;
+							break;
 						case "i":
 						case "inc":
 						case "include":
@@ -218,7 +223,7 @@ Please note:
 			foreach (string type in SssIndexSettings.Default.UseResolvers)
 				indexer.Types.Add(type);
 
-			string sdkDir = Environment.ExpandEnvironmentVariables(SssIndexSettings.Default.DebuggingSdkDir);
+			string sdkDir = Environment.ExpandEnvironmentVariables(SssIndexSettings.Default.SourceServerSdkDir);
 
 			if (Directory.Exists(sdkDir))
 				indexer.SourceServerSdkDir = Path.GetFullPath(sdkDir);

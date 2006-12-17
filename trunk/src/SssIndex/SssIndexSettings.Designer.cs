@@ -27,8 +27,8 @@ namespace SssIndex {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
 <ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
-  <string>QQn.SourceServerIndexer.Providers.SubversionResolver, QQn.SourceServerIndexer</string>
-  <string>QQn.SourceServerIndexer.Providers.TeamFoundationResolver, QQn.SourceServerIndexer</string>
+  <string>QQn.SourceServerSharp.Providers.SubversionResolver, QQn.SourceServerSharp</string>
+  <string>QQn.SourceServerSharp.Providers.TeamFoundationResolver, QQn.SourceServerSharp</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection Resolvers {
             get {
@@ -39,9 +39,9 @@ namespace SssIndex {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("%programfiles%\\Debugging Tools for Windows\\sdk\\srcsrv")]
-        public string DebuggingSdkDir {
+        public string SourceServerSdkDir {
             get {
-                return ((string)(this["DebuggingSdkDir"]));
+                return ((string)(this["SourceServerSdkDir"]));
             }
         }
         

@@ -6,10 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using QQn.SourceServerIndexer.Framework;
+using QQn.SourceServerSharp.Framework;
 using System.Diagnostics;
 
-namespace QQn.SourceServerIndexer.Engine
+namespace QQn.SourceServerSharp.Engine
 {
 	/// <summary>
 	/// PdbReader class; this class should be re-implemented using only the DbgHelp api, to optimize performance

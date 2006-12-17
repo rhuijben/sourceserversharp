@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using QQn.SourceServerIndexer.Providers;
+using QQn.SourceServerSharp.Providers;
 
-namespace QQn.SourceServerIndexer.Framework
+namespace QQn.SourceServerSharp.Framework
 {
 	/// <summary>
 	/// 

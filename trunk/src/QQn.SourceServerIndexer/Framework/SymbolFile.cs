@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 
-namespace QQn.SourceServerIndexer.Framework
+namespace QQn.SourceServerSharp.Framework
 {
 	/// <summary>
 	/// 

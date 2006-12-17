@@ -6,14 +6,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using QQn.SourceServerIndexer.Framework;
+using QQn.SourceServerSharp.Framework;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Build.Utilities;
 using System.Xml;
 using System.Xml.XPath;
 
-namespace QQn.SourceServerIndexer.Providers
+namespace QQn.SourceServerSharp.Providers
 {
 	/// <summary>
 	/// Implements the <see cref="SourceProvider"/> class for subversion (http://subversion.tigris.org/)
@@ -92,7 +92,7 @@ namespace QQn.SourceServerIndexer.Providers
 		/// </summary>
 		/// <param name="state"></param>
 		/// <returns>true if one or more files might be managed in subversion, otherwise false</returns>
-		public bool CanProvideSources(QQn.SourceServerIndexer.Framework.IndexerState state)
+		public bool CanProvideSources(QQn.SourceServerSharp.Framework.IndexerState state)
 		{
 			SortedList<string, string> directories = new SortedList<string,string>(StringComparer.InvariantCultureIgnoreCase);
 

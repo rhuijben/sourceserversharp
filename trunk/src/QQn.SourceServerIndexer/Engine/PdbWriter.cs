@@ -6,12 +6,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using QQn.SourceServerIndexer.Framework;
+using QQn.SourceServerSharp.Framework;
 using System.IO;
-using QQn.SourceServerIndexer.Providers;
+using QQn.SourceServerSharp.Providers;
 using System.Diagnostics;
 
-namespace QQn.SourceServerIndexer.Engine
+namespace QQn.SourceServerSharp.Engine
 {
 	static class PdbWriter
 	{
@@ -76,7 +76,7 @@ namespace QQn.SourceServerIndexer.Engine
 
 			sw.WriteLine("SRCSRV: ini ------------------------------------------------");
 			sw.WriteLine("VERSION=1");
-			sw.Write("VERCTRL=QQn.SourceServerIndexer");
+			sw.Write("VERCTRL=QQn.SourceServerSharp");
 			foreach (SourceProvider sp in providers.Values)
 			{
 				if (!string.IsNullOrEmpty(sp.Name))

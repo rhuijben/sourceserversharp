@@ -10,9 +10,9 @@ using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using System.IO;
 using System.ComponentModel;
-using QQn.SourceServerIndexer.Framework;
+using QQn.SourceServerSharp.Framework;
 
-namespace QQn.SourceServerIndexer.MSBuild
+namespace QQn.SourceServerSharp.MSBuild
 {
 	/// <summary>
 	/// MSBuild SourceServerIndex task implementation
@@ -189,7 +189,7 @@ namespace QQn.SourceServerIndexer.MSBuild
 			indexer.SymbolFiles = new List<string>(symbolFiles.Values);
 			indexer.SourceRoots = new List<string>(sourceRoots.Values);
 
-			if (!string.IsNullOrEmpty(SourceServerSdkDir))
+			if (!string.IsNullOrEmpty(SourceServerSdkDir) && Directory.Exists(SourceServerSdkDir))
 				indexer.SourceServerSdkDir = SourceServerSdkDir;
 
 			IndexerResult result = indexer.Exec();
@@ -197,7 +197,7 @@ namespace QQn.SourceServerIndexer.MSBuild
 			if (!result.Success)
 				return false;
 
-			Log.LogMessage(MessageImportance.High, "SourceServer-annotated {0} symbolfile(s) from {1} sourcefile reference(s) with {2} provider(s)", result.IndexedSymbolFiles, result.IndexedSourceFiles, result.ProvidersUsed);
+			Log.LogMessage(MessageImportance.Normal, "SourceServer-annotated {0} symbolfile(s) from {1} sourcefile reference(s) with {2} provider(s)", result.IndexedSymbolFiles, result.IndexedSourceFiles, result.ProvidersUsed);
 
 			return result.Success;
 		}

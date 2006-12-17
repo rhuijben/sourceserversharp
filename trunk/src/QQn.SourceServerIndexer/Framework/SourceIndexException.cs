@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.Serialization;
 
-namespace QQn.SourceServerIndexer.Framework
+namespace QQn.SourceServerSharp.Framework
 {
 	/// <summary>
 	/// 

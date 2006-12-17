@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using QQn.SourceServerSharp.Framework;
 using System.IO;
+using Microsoft.Win32;
 
 namespace QQn.SourceServerSharp.Providers
 {
@@ -35,6 +36,9 @@ namespace QQn.SourceServerSharp.Providers
 
 		bool _searchedPath;
 		string _tfExePath;
+		/// <summary>
+		/// 
+		/// </summary>
 		public string TFExePath
 		{
 			get
@@ -42,37 +46,20 @@ namespace QQn.SourceServerSharp.Providers
 				if (_searchedPath || !string.IsNullOrEmpty(_tfExePath))
 					return _tfExePath;
 
-				string path = Environment.GetEnvironmentVariable("PATH");
-				if (path == null)
-					path = "";
-				else
-					path = path.ToUpperInvariant();
-
-				string[] pathItems = path.Split(Path.PathSeparator);
-
-				// First try to find via some smart way (registry, path with the right name) (probably ok for 99% of the cases)
-				//foreach (string item in pathItems)
-				//{
-				//    if (item.Contains("TEAM"))
-				//    {
-				//        string file = Path.GetFullPath(Path.Combine(item.Trim(), "TF.EXE"));
-
-				//        if (File.Exists(file))
-				//            return _svnExePath = file;
-				//    }
-				//}
-
-				// Search whole path
-				foreach (string item in pathItems)
+				string path = null;
+				using(RegistryKey rk = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\VisualStudio\\8.0", false))
 				{
-					string file = Path.GetFullPath(Path.Combine(item.Trim(), "TF.EXE"));
-
-					if (File.Exists(file))
-						return _tfExePath = file;
+					if(rk != null)
+						path = rk.GetValue("InstallDir") as string;
 				}
 
+				if(!string.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, "tf.exe")))
+				{
+					return _tfExePath = Path.GetFullPath(path);
+				}
+				
 				_searchedPath = true;
-				return null;
+				return _tfExePath = SssUtils.FindExecutable("tf.exe");
 			}
 		}
 

@@ -71,16 +71,8 @@ namespace QQn.SourceServerSharp.Providers
 				}
 
 				// Search whole path
-				foreach(string item in pathItems)
-				{
-					string file = Path.GetFullPath(Path.Combine(item.Trim(), "SVN.EXE"));
-
-					if(File.Exists(file))
-						return _svnExePath = file;							
-				}
-
 				_searchedPath = true;
-				return null;
+				return _svnExePath = SssUtils.FindExecutable("svn.exe");
 			}
 		}
 		

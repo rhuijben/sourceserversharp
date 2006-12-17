@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
-namespace QQn.SourceServerIndexer.Framework
+namespace QQn.SourceServerSharp.Framework
 {
 	/// <summary>
 	/// Baseclass for <see cref="SourceFile"/> and <see cref="SymbolFile"/>

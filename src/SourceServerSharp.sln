@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QQn.SourceServerIndexer", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SssIndex", "SssIndex\SssIndex.csproj", "{8CCA4AB4-131A-41FB-8EED-97224D619C2A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QQn.SourceServerSharp.Tasks", "QQn.SourceServerSharp.Tasks\QQn.SourceServerSharp.Tasks.csproj", "{3A1A8523-B0F0-4D3C-9EE3-EA01A9898425}"
+EndProject
 Global
 	GlobalSection(TextTemplating) = postSolution
 		TextTemplating = 1
@@ -22,6 +24,10 @@ Global
 		{8CCA4AB4-131A-41FB-8EED-97224D619C2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CCA4AB4-131A-41FB-8EED-97224D619C2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CCA4AB4-131A-41FB-8EED-97224D619C2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A1A8523-B0F0-4D3C-9EE3-EA01A9898425}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A1A8523-B0F0-4D3C-9EE3-EA01A9898425}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A1A8523-B0F0-4D3C-9EE3-EA01A9898425}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A1A8523-B0F0-4D3C-9EE3-EA01A9898425}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,8 +7,8 @@
     <ProjectGuid>{331ECF03-EF9E-4866-BB6D-17DC921631FD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QQn.SourceServerIndexer</RootNamespace>
-    <AssemblyName>QQn.SourceServerIndexer</AssemblyName>
+    <RootNamespace>QQn.SourceServerSharp</RootNamespace>
+    <AssemblyName>QQn.SourceServerSharp</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>QQn.SourceServerIndexer.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -42,6 +42,7 @@
     <Compile Include="Engine\PdbReader.cs" />
     <Compile Include="Engine\PdbWriter.cs" />
     <Compile Include="Framework\IndexerResult.cs" />
+    <Compile Include="Framework\IndexerType.cs" />
     <Compile Include="Framework\SourceFileBase.cs" />
     <Compile Include="Framework\SourceIndexException.cs" />
     <Compile Include="Framework\SourceIndexToolException.cs" />
@@ -66,6 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="TestIndexer.msbuild" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

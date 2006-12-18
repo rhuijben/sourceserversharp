@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SourceServerSharp Indexer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("QQn, Source released under BSD license at http://code.google.com/p/sourceserversharp/")]
+[assembly: AssemblyCompany("QQn, Source released under Apache license at http://code.google.com/p/sourceserversharp/")]
 [assembly: AssemblyProduct("SssIndex - SourceServerSharp Indexer")]
 [assembly: AssemblyCopyright("Copyright © 2006 QQn; http://code.google.com/p/sourceserversharp/")]
 [assembly: AssemblyTrademark("")]

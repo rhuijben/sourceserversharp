@@ -28,7 +28,7 @@ namespace SssIndex
 				AssemblyName name = new AssemblyName(typeof(Program).Assembly.FullName);
 				Console.WriteLine(" " + name.Version.ToString(4));
 				Console.WriteLine(((AssemblyCopyrightAttribute)typeof(Program).Assembly.GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false)[0]).Copyright);
-				Console.WriteLine("The sourcecode of this program has been released under the BSD licence.");
+				Console.WriteLine("The sourcecode of this program has been released under the Apache licence.");
 				Console.WriteLine();
 			}
 

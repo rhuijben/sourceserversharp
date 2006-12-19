@@ -2,12 +2,39 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QQn.SourceServerIndexer", "QQn.SourceServerIndexer\QQn.SourceServerIndexer.csproj", "{331ECF03-EF9E-4866-BB6D-17DC921631FD}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SssIndex", "SssIndex\SssIndex.csproj", "{8CCA4AB4-131A-41FB-8EED-97224D619C2A}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QQn.SourceServerSharp.Tasks", "QQn.SourceServerSharp.Tasks\QQn.SourceServerSharp.Tasks.csproj", "{3A1A8523-B0F0-4D3C-9EE3-EA01A9898425}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs01.codeplex.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = QQn.SourceServerIndexer\\QQn.SourceServerIndexer.csproj
+		SccProjectName1 = QQn.SourceServerIndexer
+		SccLocalPath1 = QQn.SourceServerIndexer
+		SccProjectUniqueName2 = QQn.SourceServerSharp.Tasks\\QQn.SourceServerSharp.Tasks.csproj
+		SccProjectName2 = QQn.SourceServerSharp.Tasks
+		SccLocalPath2 = QQn.SourceServerSharp.Tasks
+		SccProjectUniqueName3 = SssIndex\\SssIndex.csproj
+		SccProjectName3 = SssIndex
+		SccLocalPath3 = SssIndex
+	EndGlobalSection
 	GlobalSection(TextTemplating) = postSolution
 		TextTemplating = 1
 	EndGlobalSection

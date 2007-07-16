@@ -20,21 +20,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QQn.SourceServerSharp.Tasks
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs01.codeplex.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = QQn.SourceServerIndexer\\QQn.SourceServerIndexer.csproj
-		SccProjectName1 = QQn.SourceServerIndexer
-		SccLocalPath1 = QQn.SourceServerIndexer
-		SccProjectUniqueName2 = QQn.SourceServerSharp.Tasks\\QQn.SourceServerSharp.Tasks.csproj
-		SccProjectName2 = QQn.SourceServerSharp.Tasks
-		SccLocalPath2 = QQn.SourceServerSharp.Tasks
-		SccProjectUniqueName3 = SssIndex\\SssIndex.csproj
-		SccProjectName3 = SssIndex
-		SccLocalPath3 = SssIndex
-	EndGlobalSection
 	GlobalSection(TextTemplating) = postSolution
 		TextTemplating = 1
 	EndGlobalSection

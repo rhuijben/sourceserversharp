@@ -66,26 +66,48 @@ namespace QQn.SourceServerSharp.Tasks
 		{
 			SourceServerIndexer indexer = new SourceServerIndexer();
 
-			if(Sources != null)
-				foreach(SssDirSet set in Sources)
+			InitializeIndexer(indexer);
+
+			IndexerResult result = null;
+			try
+			{
+				result = indexer.Exec();
+			}
+			catch (Exception e)
+			{
+				throw new BuildException("SssIndex: SourceServer indexing failed", e);
+			}
+
+			if (result == null)
+				throw new BuildException("SssIndex: SourceServer indexing failed");
+			else if (!result.Success)
+				throw new BuildException("SssIndex: " + result.ErrorMessage);
+			else
+				Log(Level.Info, "SourceServer-annotated {0} symbolfile(s) from {1} sourcefile reference(s) with {2} provider(s)", result.IndexedSymbolFiles, result.IndexedSourceFiles, result.ProvidersUsed);
+		}
+
+		protected virtual void InitializeIndexer(SourceServerIndexer indexer)
+		{
+			if (Sources != null)
+				foreach (SssDirSet set in Sources)
 				{
 					bool hasData = !string.IsNullOrEmpty(set.Type);
 
-					foreach(string dir in set.DirectoryNames)
+					foreach (string dir in set.DirectoryNames)
 					{
 						indexer.SourceRoots.Add(dir);
 
-						if(hasData)
+						if (hasData)
 							indexer.ResolverData[dir] = new IndexerTypeData(dir, set.Type, set.Info);
 					}
 				}
 
-			if(SourceFiles != null)
-				foreach(SssFileSet set in SourceFiles)
+			if (SourceFiles != null)
+				foreach (SssFileSet set in SourceFiles)
 				{
 					bool hasData = !string.IsNullOrEmpty(set.Type);
 
-					foreach(string file in set.FileNames)
+					foreach (string file in set.FileNames)
 					{
 						indexer.SourceRoots.Add(file);
 
@@ -94,23 +116,23 @@ namespace QQn.SourceServerSharp.Tasks
 					}
 				}
 
-			if(ExcludeSources != null)
-				foreach(DirSet set in ExcludeSources)
+			if (ExcludeSources != null)
+				foreach (DirSet set in ExcludeSources)
 				{
-					foreach(string dir in set.DirectoryNames)
+					foreach (string dir in set.DirectoryNames)
 					{
 						indexer.ExcludeSourceRoots.Add(dir);
 					}
 				}
 
-			foreach(FileSet set in Symbols)
+			foreach (FileSet set in Symbols)
 			{
-				foreach(string file in set.FileNames)
+				foreach (string file in set.FileNames)
 				{
 					indexer.SymbolFiles.Add(file);
 				}
 			}
-			
+
 			if (!string.IsNullOrEmpty(Types))
 			{
 				indexer.Types.Clear();
@@ -121,7 +143,7 @@ namespace QQn.SourceServerSharp.Tasks
 						indexer.Types.Add(item);
 				}
 			}
-			else if(Properties.Contains("SssIndex.Type"))
+			else if (Properties.Contains("SssIndex.Type"))
 			{
 				indexer.Types.Clear();
 				foreach (string type in Properties["SssIndex.Type"].Split(';'))
@@ -148,23 +170,6 @@ namespace QQn.SourceServerSharp.Tasks
 			{
 				indexer.SourceServerSdkDir = Properties["SssIndex.SourceServerSdkDir"];
 			}
-
-			IndexerResult result = null;
-			try
-			{
-				result = indexer.Exec();
-			}
-			catch (Exception e)
-			{
-				throw new BuildException("SssIndex: SourceServer indexing failed", e);
-			}
-
-			if (result == null)
-				throw new BuildException("SssIndex: SourceServer indexing failed");
-			else if (!result.Success)
-				throw new BuildException("SssIndex: " + result.ErrorMessage);
-			else
-				Log(Level.Info, "SourceServer-annotated {0} symbolfile(s) from {1} sourcefile reference(s) with {2} provider(s)", result.IndexedSymbolFiles, result.IndexedSourceFiles, result.ProvidersUsed);
 		}
 	}
 }

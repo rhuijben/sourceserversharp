@@ -53,12 +53,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QQn.SourceServerIndexer\QQn.SourceServerIndexer.csproj">
-      <Project>{331ECF03-EF9E-4866-BB6D-17DC921631FD}</Project>
-      <Name>QQn.SourceServerIndexer</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +65,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\QQn.SourceServerSharp\QQn.SourceServerIndexer.csproj">
+      <Project>{331ECF03-EF9E-4866-BB6D-17DC921631FD}</Project>
+      <Name>QQn.SourceServerIndexer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

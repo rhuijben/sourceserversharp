@@ -10,7 +10,7 @@
     <RootNamespace>QQn.SourceServerSharp</RootNamespace>
     <AssemblyName>QQn.SourceServerSharp</AssemblyName>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>QQn.SourceServerIndexer.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>QQn.SourceServerSharp.snk</AssemblyOriginatorKeyFile>
     <SccProjectName>
     </SccProjectName>
     <SccLocalPath>
@@ -68,13 +68,13 @@
     <Compile Include="Framework\SymbolFile.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="QQn.SourceServerIndexer.snk" />
     <None Include="SourceServerIndexer.targets" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="QQn.SourceServerSharp.snk" />
     <None Include="TestIndexer.msbuild" />
   </ItemGroup>
   <ItemGroup>

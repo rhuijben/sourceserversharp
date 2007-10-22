@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QQn.SourceServerSharp", "QQn.SourceServerSharp\QQn.SourceServerSharp.csproj", "{331ECF03-EF9E-4866-BB6D-17DC921631FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QQn.SourceServerSharp", "Libraries\QQn.SourceServerSharp\QQn.SourceServerSharp.csproj", "{331ECF03-EF9E-4866-BB6D-17DC921631FD}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"

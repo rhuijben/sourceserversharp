@@ -95,7 +95,7 @@ namespace QQn.SourceServerSharp.Providers
             if (!State.SourceFiles.TryGetValue(path, out file) || file.IsResolved)
                 return; 
 
-            file.SourceReference = new SubversionSourceReference(this, file, e.ReposRoot, e.ReposRoot.MakeRelativeUri(e.Uri), e.LastChangeRevision, e.Revision);
+            file.SourceReference = new SubversionSourceReference(this, file, e.RepositoryRoot, e.RepositoryRoot.MakeRelativeUri(e.Uri), e.LastChangeRevision, e.Revision);
         }
 
 		/// <summary>
@@ -116,7 +116,7 @@ namespace QQn.SourceServerSharp.Providers
 				if (file.Value.IsResolved)
 					continue;
 
-                if (client.Info(new SvnPathTarget(file.Key), null, infoArgs))
+                if (client.Info(new SvnPathTarget(file.Key), infoArgs, new EventHandler<SvnInfoEventArgs>(OnSvnInfo)))
                 {
                     // Info set in OnSvnInfo
                 }               

@@ -69,7 +69,7 @@
   <ItemGroup>
     <ProjectReference Include="..\QQn.SourceServerSharp\QQn.SourceServerSharp.csproj">
       <Project>{331ECF03-EF9E-4866-BB6D-17DC921631FD}</Project>
-      <Name>QQn.SourceServerIndexer</Name>
+      <Name>QQn.SourceServerSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

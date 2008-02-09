@@ -57,11 +57,25 @@ namespace QQn.SourceServerSharp
 							string srcSdkPath = Path.Combine(path, "sdk\\srcsrv");
 
 							if (Directory.Exists(path))
+							{
 								SourceServerSdkDir = _registrySourceServerSdkDir = Path.GetFullPath(srcSdkPath);
+								return;
+							}
 						}
 					}
 				}
 			}
+
+			string dir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+
+			string sdkDir = Path.Combine(dir, "Debugging Tools for Windows\\sdk\\srcsrv");
+			if(Directory.Exists(sdkDir))
+				SourceServerSdkDir = sdkDir;
+
+
+			sdkDir = Path.Combine(dir, "Debugging Tools for Windows 64-bit\\sdk\\srcsrv");
+			if (Directory.Exists(sdkDir))
+				SourceServerSdkDir = sdkDir;
 		}
 
 		/// <summary>

@@ -75,6 +75,8 @@ SssIndex [<arguments>] file1.pdb [file2.pdb...]
                        All providers which implement ISourceProviderDetector
                        are used by autodetect.
 
+  -toolspath <path>    Load tools from path
+
 Please note:
  * The actual defaults are defined in SssIndex.exe.config; those are not
    reflected in this helptext.

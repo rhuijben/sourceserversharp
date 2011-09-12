@@ -83,8 +83,8 @@
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <ItemGroup>
-    <DependencyDownload Include="SSvn-1.6013.1603.zip">
-      <Url>http://sharpsvn.open.collab.net/files/documents/180/3937/</Url>
+    <DependencyDownload Include="SSvn-1.6016.1637.zip">
+      <Url>http://sharpsvn.open.collab.net/files/documents/180/4381/</Url>
       <TargetDir>..\..\autolib</TargetDir>
       <Version>1</Version>
       <Visible>false</Visible>

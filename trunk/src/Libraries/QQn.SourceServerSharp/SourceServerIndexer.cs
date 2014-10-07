@@ -115,7 +115,7 @@ namespace QQn.SourceServerSharp
 		/// <remarks>These directories allow to exclude specific directories which are included in the <see cref="SourceRoots"/></remarks>
 		public IList<string> ExcludeSourceRoots
 		{
-			get { return _sourceRoots; }
+			get { return _excludeSourceRoots; }
 			set
 			{
 				if (value != null)
